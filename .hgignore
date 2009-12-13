@@ -1,0 +1,14 @@
+syntax: glob
+
+.DS_Store
+*~
+.\#*
+.*.swp
+._*
+
+**/build/*
+**.pbxuser
+**.mode?v?
+**.perspectivev?
+**.docset/*
+*.svn*
