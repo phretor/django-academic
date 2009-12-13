@@ -4,10 +4,14 @@ from distutils.core import setup
 from distutils.command.install_data import install_data
 from distutils.command.install import INSTALL_SCHEMES
 
-from foopackage import get_version
-
 import os
 import sys
+
+try:
+    from foopackage import get_version
+    VERSION = get_version().replace(' ', '-')
+except ImportError:
+    VERSION = '0.1-alpha-1'
 
 class osx_install_data(install_data):
     def finalize_options(self):
@@ -52,15 +56,26 @@ for dirpath, dirnames, filenames in os.walk(package_dir):
             [dirpath, [os.path.join(dirpath, f) for f in filenames]])
 
 setup(
-    name = 'python-foopackage',
-    version = get_version().replace(' ', '-'),
-    url = 'http://maggi.cc/',
-    download_url = 'http://bitbucket.org/phretor/python-foopackage/get/v0.1.gz',
+    name = 'django-foopackage',
+    version = VERSION,
+    url = 'http://bitbucket.org/phretor/django-foopackage',
     author = 'Federico Maggi',
     author_email = 'federico@maggi.cc',
-    description = 'A Foo Python package.',
+    description = 'A Django package that provides Foo.',
     
     packages = packages,
     cmdclass = cmdclasses,
     data_files = data_files,
+
+        classifiers = [
+        'Development Status :: 3 - Alpha',
+        'Environment :: Web Environment',
+                'Framework :: Django',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: BSD License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+                'Topic :: Software Development :: Libraries :: Python Modules',
+                'Topic :: Utilities'
+        ]
 )
