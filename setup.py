@@ -4,6 +4,8 @@ from distutils.core import setup
 from distutils.command.install_data import install_data
 from distutils.command.install import INSTALL_SCHEMES
 
+from foopackage import get_version
+
 import os
 import sys
 
@@ -38,7 +40,7 @@ packages, data_files = [], []
 root_dir = os.path.dirname(__file__)
 if root_dir != '':
     os.chdir(root_dir)
-package_dir = 'package'
+package_dir = 'foopackage'
 
 for dirpath, dirnames, filenames in os.walk(package_dir):
     for i, dirname in enumerate(dirnames):
@@ -50,12 +52,13 @@ for dirpath, dirnames, filenames in os.walk(package_dir):
             [dirpath, [os.path.join(dirpath, f) for f in filenames]])
 
 setup(
-    name = 'Package',
-    version = '0.1',
+    name = 'python-foopackage',
+    version = get_version().replace(' ', '-'),
     url = 'http://maggi.cc/',
+    download_url = 'http://bitbucket.org/phretor/python-foopackage/get/v0.1.gz',
     author = 'Federico Maggi',
     author_email = 'federico@maggi.cc',
-    description = 'A Python package.',
+    description = 'A Foo Python package.',
     
     packages = packages,
     cmdclass = cmdclasses,
