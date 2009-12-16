@@ -4,7 +4,7 @@ from distutils.core import setup
 from setuptools import find_packages
 
 try:
-    from foopackage import get_version
+    from protags import get_version
     VERSION = get_version().replace(' ', '-')
 except ImportError:
     VERSION = '0.1-alpha-1'
@@ -15,12 +15,12 @@ except:
     long_description = ''
 
 setup(
-    name = 'django-foopackage',
+    name = 'django-protags',
     version = VERSION,
-    url = 'http://bitbucket.org/phretor/django-foopackage',
+    url = 'http://bitbucket.org/phretor/django-protags',
     author = 'Federico Maggi',
     author_email = 'federico@maggi.cc',
-    description = 'A Django package that provides Foo.',
+    description = 'A Django package that provides useful template tags.',
     long_description = long_description,
     
     packages = find_packages(),
