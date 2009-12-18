@@ -1,3 +1,6 @@
-Provides useful template tags such as {% protags_permalink object [suffix] %}
-to create an URI out from the object's get_absolute_url and an optional
+Provides handy template tags and filters such as
+
+    {{ object|protags_permalink object [suffix] [template_name] }}
+
+to create a URI out from the object's get_absolute_url and an optional
 [suffix] string.
