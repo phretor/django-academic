@@ -1,9 +1,17 @@
 from django import template
 from django.contrib.sites.models import Site
+from django.template import loader, Node, Variable
+from django.utils.encoding import smart_str, smart_unicode
+from django.template.defaulttags import url
+from django.template import VariableDoesNotExist
 
 from protags.settings import PROTOCOL
 from protags.settings import LOGIN_FORM_CLASS
 from protags.settings import GMAPS_URL
+from protags.settings import SANITIZE_ALLOWED_TAGS
+
+from BeautifulSoup import BeautifulSoup, Comment
+import re
 
 from form_utils.utils import select_template_from_string
 
@@ -33,6 +41,50 @@ def protags_settings(key):
     except:
         return settings.TEMPLATE_STRING_IF_INVALID
 
+
+@register.filter
+def protags_shorten(string, length=20):
+    if len(string) > length:
+        if length <= 3:
+            try:
+                return string[0:length]
+            except:
+                pass
+        try:
+            return string[:length-3].strip() + '...' + string[-3:].strip()
+        except:
+            pass
+    return string
+
+
+@register.filter
+def protags_sanitize(value, allowed_tags=SANITIZE_ALLOWED_TAGS):
+    """
+    Thanks to http://www.djangosnippets.org/snippets/1655/
+    
+    Argument should be in form
+
+      'tag2:attr1:attr2 tag2:attr1 tag3'
+
+    where tagsare allowed HTML tags, and attrs are the allowed
+    attributes for that tag.
+    """
+    js_regex = re.compile(r'[\s]*(&#x.{1,7})?'.join(list('javascript')))
+    allowed_tags = [tag.split(':') for tag in allowed_tags.split()]
+    allowed_tags = dict((tag[0], tag[1:]) for tag in allowed_tags)
+
+    soup = BeautifulSoup(value)
+    for comment in soup.findAll(text=lambda text: isinstance(text, Comment)):
+        comment.extract()
+
+    for tag in soup.findAll(True):
+        if tag.name not in allowed_tags:
+            tag.hidden = True
+        else:
+            tag.attrs = [(attr, js_regex.sub('', val)) for attr, val in tag.attrs
+                         if attr in allowed_tags[tag.name]]
+
+    return soup.renderContents().decode(settings.DEFAULT_CHARSET)
 
 @register.simple_tag
 def protags_gmap(query):
@@ -68,3 +120,130 @@ def login_form(context):
     return context
 register.inclusion_tag(
     'protags/login_form.html', takes_context=True)(login_form)
+
+
+@register.tag
+def breadcrumb(parser, token):
+	"""
+        Thanks to: http://www.djangosnippets.org/snippets/1289/
+
+	Renders the breadcrumb.
+	Examples:
+		{% breadcrumb "Title of breadcrumb" url_var %}
+		{% breadcrumb context_var  url_var %}
+		{% breadcrumb "Just the title" %}
+		{% breadcrumb just_context_var %}
+
+	Parameters:
+	-First parameter is the title of the crumb,
+	-Second (optional) parameter is the url variable to link to,
+         produced by url tag, i.e.:
+		{% url person_detail object.id as person_url %}
+		then:
+		{% breadcrumb person.name person_url %}
+
+	@author Andriy Drozdyuk
+	"""
+	return BreadcrumbNode(token.split_contents()[1:])
+
+
+@register.tag
+def breadcrumb_url(parser, token):
+    """
+    Thanks to: http://www.djangosnippets.org/snippets/1289/
+
+    Same as breadcrumb
+    but instead of url context variable takes in all the
+    arguments URL tag takes.
+            {% breadcrumb "Title of breadcrumb" person_detail person.id %}
+            {% breadcrumb person.name person_detail person.id %}
+    """
+
+    bits = token.split_contents()
+    if len(bits)==2:
+        return breadcrumb(parser, token)
+
+    # Extract our extra title parameter
+    title = bits.pop(1)
+    token.contents = ' '.join(bits)
+
+    url_node = url(parser, token)
+
+    return UrlBreadcrumbNode(title, url_node)
+
+
+class BreadcrumbNode(Node):
+    """
+    Thanks to: http://www.djangosnippets.org/snippets/1289/
+    """
+    def __init__(self, vars):
+        """
+        First var is title, second var is url context variable
+        """
+        self.vars = map(Variable,vars)
+
+    def render(self, context):
+        title = self.vars[0].var
+
+        if title.find("'")==-1 and title.find('"')==-1:
+            try:
+                val = self.vars[0]
+                title = val.resolve(context)
+            except:
+                title = ''
+
+        else:
+            title=title.strip("'").strip('"')
+            title=smart_unicode(title)
+
+        url = None
+
+        if len(self.vars)>1:
+            val = self.vars[1]
+            try:
+                url = val.resolve(context)
+            except VariableDoesNotExist:
+                print 'URL does not exist', val
+                url = None
+
+        return create_crumb(title, url)
+
+
+class UrlBreadcrumbNode(Node):
+    """
+    Thanks to: http://www.djangosnippets.org/snippets/1289/
+    """
+    def __init__(self, title, url_node):
+        self.title = Variable(title)
+        self.url_node = url_node
+
+    def render(self, context):
+        title = self.title.var
+
+        if title.find("'")==-1 and title.find('"')==-1:
+            try:
+                val = self.title
+                title = val.resolve(context)
+            except:
+                title = ''
+        else:
+            title=title.strip("'").strip('"')
+            title=smart_unicode(title)
+
+        url = self.url_node.render(context)
+        return create_crumb(title, url)
+
+
+def create_crumb(title, url=None):
+    """
+    Thanks to: http://www.djangosnippets.org/snippets/1289/
+
+    Helper function
+    """
+    crumb = '<span class="breadcrumbs-arrow">&rsaquo;</span>'
+    if url:
+        crumb = '%s<a href="%s">%s</a>' % (crumb, url, title)
+    else:
+        crumb = '%s%s' % (crumb, title)
+
+    return crumb

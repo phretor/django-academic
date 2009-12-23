@@ -15,3 +15,8 @@ GMAPS_URL = getattr(
     settings,
     'PROTAGS_GMAPS_URL',
     'http://maps.google.com/maps?f=q&q=%(query)s')
+
+SANITIZE_ALLOWED_TAGS = getattr(
+    settings,
+    'PROTAGS_SANITIZE_ALLOWED_TAGS',
+    'strong em p ul ol li')
