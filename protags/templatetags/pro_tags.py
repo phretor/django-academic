@@ -4,6 +4,7 @@ from django.template import loader, Node, Variable
 from django.utils.encoding import smart_str, smart_unicode
 from django.template.defaulttags import url
 from django.template import VariableDoesNotExist
+from django.forms import Form
 
 from protags.settings import PROTOCOL
 from protags.settings import LOGIN_FORM_CLASS
@@ -120,6 +121,13 @@ def login_form(context):
     return context
 register.inclusion_tag(
     'protags/login_form.html', takes_context=True)(login_form)
+
+
+def delete_confirm_form(context):
+    context['form'] = Form()
+    return context
+register.inclusion_tag(
+    'protags/delete_confirm_form.html', takes_context=True)(delete_confirm_form)
 
 
 @register.tag
