@@ -80,6 +80,8 @@ def protags_sanitize(value, allowed_tags=SANITIZE_ALLOWED_TAGS):
             if whitelist_tags is not None:
                 kwargs['whitelist_tags'] = allowed_tags
 
+    return value
+
     c = Cleaner(kwargs)
     return c.clean_html(value)
 
