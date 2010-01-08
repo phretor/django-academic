@@ -78,11 +78,9 @@ def protags_sanitize(value, allowed_tags=SANITIZE_ALLOWED_TAGS):
             except:
                 whitelist_tags = None
             if whitelist_tags is not None:
-                kwargs['whitelist_tags'] = allowed_tags
+                kwargs['whitelist_tags'] = whitelist_tags
 
-    return value
-
-    c = Cleaner(kwargs)
+    c = Cleaner(**kwargs)
     return c.clean_html(value)
 
 
