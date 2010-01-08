@@ -11,9 +11,6 @@ from protags.settings import LOGIN_FORM_CLASS
 from protags.settings import GMAPS_URL
 from protags.settings import SANITIZE_ALLOWED_TAGS
 
-from BeautifulSoup import BeautifulSoup, Comment
-import re
-
 from form_utils.utils import select_template_from_string
 
 register = template.Library()
@@ -61,31 +58,30 @@ def protags_shorten(string, length=20):
 @register.filter
 def protags_sanitize(value, allowed_tags=SANITIZE_ALLOWED_TAGS):
     """
-    Thanks to http://www.djangosnippets.org/snippets/1655/
-    
-    Argument should be in form
+    Call this tag like:
 
-      'tag2:attr1:attr2 tag2:attr1 tag3'
+      protags_sanitize "content" "tag2 tag4 tag3"
 
     where tagsare allowed HTML tags, and attrs are the allowed
     attributes for that tag.
     """
-    js_regex = re.compile(r'[\s]*(&#x.{1,7})?'.join(list('javascript')))
-    allowed_tags = [tag.split(':') for tag in allowed_tags.split()]
-    allowed_tags = dict((tag[0], tag[1:]) for tag in allowed_tags)
+    from lxml.html.clean import Cleaner
 
-    soup = BeautifulSoup(value)
-    for comment in soup.findAll(text=lambda text: isinstance(text, Comment)):
-        comment.extract()
+    kwargs = {
+        'add_nofollow': True,
+        'style': True }
 
-    for tag in soup.findAll(True):
-        if tag.name not in allowed_tags:
-            tag.hidden = True
-        else:
-            tag.attrs = [(attr, js_regex.sub('', val)) for attr, val in tag.attrs
-                         if attr in allowed_tags[tag.name]]
+    if isinstance(allowed_tags, str):
+        if allowed_tags is not '':
+            try:
+                whitelist_tags = set(allowed_tags.split(' '))
+            except:
+                whitelist_tags = None
+            if whitelist_tags is not None:
+                kwargs['whitelist_tags'] = allowed_tags
 
-    return soup.renderContents().decode(settings.DEFAULT_CHARSET)
+    return Cleaner(kwargs).clean_html(value)
+
 
 @register.simple_tag
 def protags_gmap(query):

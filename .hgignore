@@ -6,6 +6,7 @@ syntax: glob
 .*.swp
 ._*
 *.pyc
+pip-log.txt
 
 **/build/*
 **.pbxuser
