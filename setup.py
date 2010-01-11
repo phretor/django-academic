@@ -4,7 +4,7 @@ from distutils.core import setup
 from setuptools import find_packages
 
 try:
-    from protags import get_version
+    from academic import get_version
     VERSION = get_version().replace(' ', '-')
 except ImportError:
     VERSION = '0.1-alpha-1'
@@ -15,12 +15,13 @@ except:
     long_description = ''
 
 setup(
-    name = 'django-protags',
+    name = 'django-academic',
     version = VERSION,
-    url = 'http://bitbucket.org/phretor/django-protags',
+    url = 'http://bitbucket.org/phretor/django-academic',
     author = 'Federico Maggi',
     author_email = 'federico@maggi.cc',
-    description = 'A Django package that provides useful template tags.',
+    description = 'A collection of Django loosely coupled applications'
+    ' useful to describe an academic context',
     long_description = long_description,
     
     packages = find_packages(),

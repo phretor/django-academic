@@ -1,6 +1,3 @@
-Provides handy template tags and filters such as
-
-    {{ object|protags_permalink object [suffix] [template_name] }}
-
-to create a URI out from the object's get_absolute_url and an optional
-[suffix] string.
+A collection of Django loosely coupled applications useful to describe
+an academic context such as a research laboratory, or to manage a list
+of teaching acitivities such as courses, professors, theses, etc.
