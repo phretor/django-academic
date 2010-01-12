@@ -4,10 +4,11 @@ from django.utils.translation import ugettext as _
 from django.utils.text import truncate_html_words
 from django.utils.text import truncate_words
 
-from people.models import *
-from assets.models import *
+from academic.people.models import *
 
 from filebrowser.fields import FileBrowseField
+from tagging_autocomplete.models import TagAutocompleteField
+
 
 class Topic(models.Model):
     """
@@ -32,7 +33,7 @@ class Topic(models.Model):
     picture = FileBrowseField(
         _('Picture'),
         max_length=200,
-        directory='research/topics/pictures',
+        directory='academic/research/topics/pictures',
         format='Image')
     link = models.URLField(
         _('URL'),
@@ -52,13 +53,13 @@ class Topic(models.Model):
     short_description = property(_short_description)
 
 
-class ActiveProjectManager(models.Manager):
+class ProjectManager(models.Manager):
     """
     Filters the active projects only.
     """
     def get_query_set(self):
         return super(
-            ActiveProjectManager,
+            ProjectManager,
             self).get_query_set().filter(published__exact=True)
 
 
@@ -72,8 +73,8 @@ class Project(models.Model):
         verbose_name_plural = _('Projects')
         ordering = ['date_published',]
         
-    objects = models.Manager()
-    active = ActiveProjectManager()
+    objects = ProjectManager()
+    all = models.Manager()
 
     name = models.CharField(
         _('Name'),
@@ -99,7 +100,8 @@ class Project(models.Model):
         Topic,
         related_name='related_for_core_projects',
         verbose_name=_('Core topic'),
-        help_text=_('If not specifed, the first one among <strong>Topics</strong> is assumed'))
+        help_text=_('If not specifed, the first one among'
+                    ' <strong>Topics</strong> is assumed'))
     people = models.ManyToManyField(
         Person,
         verbose_name=_('People Involved'))
@@ -120,30 +122,30 @@ class Project(models.Model):
     def __unicode__(self):
         return u'%s' % self.name
 
-    def _short_description(self):
+    def _get_short_description(self):
         if self.excerpt:
             return self.excerpt
         return truncate_html_words(self.description, 15)
-    short_description = property(_short_description)
+    short_description = property(_get_short_description)
 
-    def _involved_people(self):
+    def _get_involved_people(self):
         try:
             return self.people.filter(published=True)
         except Person.DoesNotExist:
             pass
         return None
-    involved_people = property(_involved_people)
+    involved_people = property(_get_involved_people)
 
     def _short_topics(self):
         return truncate_words(
             ', '.join([str(t) for t in self.topics.all()]), 5)
     short_topics = property(_short_topics)
 
-    def _main_topic(self):
+    def _get_main_topic(self):
         if self.core_topic:
             return self.core_topic
         return self.topics.all().order_by('name')[0]
-    main_topic = property(_main_topic)
+    main_topic = property(_get_main_topic)
 
     @models.permalink
     def get_absolute_url(self):
@@ -152,7 +154,7 @@ class Project(models.Model):
 
 class PaperType(models.Model):
     """
-    Paper type (e.g., conference paper).
+    Paper type (e.g., conference paper, journal paper, workshop paper).
     """
     
     class Meta:
@@ -170,22 +172,37 @@ class PaperType(models.Model):
 
 class Paper(models.Model):
     """
-    A scientific paper.
+    A scientific publication.
     """
     class Meta:
         verbose_name = _('Paper')
         verbose_name_plural = _('Papers')
+        ordering = ['year',]
+    
     
     title = models.CharField(
         _('Title'),
         max_length=512)
+    authors = TagAutocompleteField(
+        _('Authors'),
+        help_text=_('Autocompleting, comma separated list of authors.'
+                    ' If typed nicely, the system will be able to'
+                    ' automagically figure out known people. The complete'
+                    ' list of authors can be found into the "Tagging"'
+                    ' panel, under "Tags".'),
+        blank=True,
+        null=True)
+    known_authors = models.ManyToManyField(
+        Person,
+        _('Known authors'),
+        help_text=_('Collects all the known people that match any authors.'),
+        editable=False,
+        null=True,
+        blank=False)
     abstract = models.TextField(
         _('Abstract'),
         blank=True,
         null=True)
-    people = models.ManyToManyField(
-        Person,
-        verbose_name=_('People Involved'))
     topics = models.ManyToManyField(
         Topic,
         verbose_name=_('Related Topics'),
@@ -196,40 +213,37 @@ class Paper(models.Model):
         verbose_name=_('Related Projects'),
         blank=True,
         null=True)
-    authors = models.CharField(
-        _('Authors'),
-        max_length=1024,
-        help_text=_('Comma separated list of authors, including people from the lab.'),
-        blank=True,
-        null=True)
     fulltext = FileBrowseField(
         _('Fulltext'),
         max_length=256,
-        directory="research/papers/fulltexts",
+        directory='academic/research/papers/fulltexts',
         format='Document',
-        help_text="Only PDFs are allowed. Please, be standard and nice to the world!",
+        help_text=_('Only PDFs are allowed. Please, be standard'
+                    ' and nice to the world!'),
         blank=True,
         null=True)
     presentation = FileBrowseField(
         _('Presentation'),
         max_length=256,
-        directory="research/papers/presentations",
+        directory='academic/research/papers/presentations',
         format='Document',
-        help_text="Only PDFs are allowed. Please, be standard and nice to the world!",
+        help_text=_('Only PDFs are allowed. Please, be standard'
+                    ' and nice to the world!'),
         blank=True,
         null=True)
     extra_attachment = FileBrowseField(
         _('Extra attachment'),
         max_length=256,
-        directory="research/papers/attachments",
+        directory='academic/research/papers/attachments',
         format='File',
-        help_text="Use this to attach the source code archive or something else.",
+        help_text=_('Use this to attach the source code archive'
+                    ' or something else.'),
         blank=True,
         null=True)
-    conference_or_journal = models.CharField(
-        _('Conference or Journal'),
+    notes = models.CharField(
+        _('Notes'),
         max_length=512,
-        help_text=_('Notes about the conference or the journal.'),
+        help_text=_('Notes, e.g., about the conference or the journal.'),
         blank=True,
         null=True)
     location = models.CharField(
@@ -239,7 +253,7 @@ class Paper(models.Model):
         blank=True,
         null=True)
     details = models.CharField(
-        _('Notes'),
+        _('Further information'),
         max_length=128,
         help_text=_('Further details such as pages, volume, etc.'),
         blank=True,
@@ -256,12 +270,15 @@ class Paper(models.Model):
     date_updated = models.DateField(
         _('Last updated on'),
         auto_now=True)
+    published = models.BooleanField(
+        _('Publicly visible?'),
+        default=True)
 
     @models.permalink
     def get_absolute_url(self):
         return ('research_paper', (), { 'object_id': self.id })
 
-    def _downloads(self):
+    def _get_downloads(self):
         l = list()
         
         if self.fulltext:
@@ -272,18 +289,18 @@ class Paper(models.Model):
             l.append(self.extra_attachment)
         
         return l
-    downloads = property(_downloads)
+    downloads = property(_get_downloads)
 
     def _get_html_id(self):
         return u'paper-%d' % self.id
-    get_html_id = property(_get_html_id)
+    html_id = property(_get_html_id)
 
     def __unicode__(self):
         return u'%s %s' % (
             self.title,
             self.year)
 
-    def _smart_authors(self):
+    def _get_smart_authors(self):
         authors = []
         for author in self.authors.replace('  ', ' ').replace(', ', ',').split(','):
             _first_name = None
@@ -309,4 +326,4 @@ class Paper(models.Model):
             else:
                 authors.append(author)
         return authors
-    smart_authors = property(_smart_authors)
+    smart_authors = property(_get_smart_authors)

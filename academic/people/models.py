@@ -4,6 +4,7 @@ from django.utils.translation import ugettext as _
 from django.template.defaultfilters import slugify
 
 from datetime import datetime
+
 from filebrowser.fields import FileBrowseField
 
 class Rank(models.Model):
@@ -28,7 +29,8 @@ class Rank(models.Model):
         null=True)
     order = models.PositiveSmallIntegerField(
         _('Rank order'),
-        help_text=_('Lower values mean higher importance. I.e., 0 should be attributed to "Full professor"'))
+        help_text=_('Lower values mean higher importance.'
+                    ' I.e., 0 should be attributed to "Full professor"'))
 
     def __unicode__(self):
         return u'%s' % self.plural_name
@@ -81,13 +83,13 @@ class Person(models.Model):
     picture = FileBrowseField(
         _('Profile picture'),
         max_length=200,
-        directory='people/person/pictures',
+        directory='academic/people/person/pictures',
         help_text=_('Will be automatically cropped to 250x300.'),
         format='Image')
     
     def __unicode__(self):
         return u'%s' % self.name
 
-    def _name(self):
+    def _get_name(self):
         return u'%s %s' % (self.first_name, self.last_name)
-    name = property(_name)
+    name = property(_get_name)

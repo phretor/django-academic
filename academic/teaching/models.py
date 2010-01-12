@@ -1,10 +1,22 @@
 from django.db import models
 from django.utils.translation import ugettext as _
+from django.db.models import signals
 
 from people.models import *
 from research.models import *
 from assets.models import *
 from teaching import config
+
+from tagging_autocomplete.models import TagAutocompleteField
+
+class CourseManager(models.Manager):
+    """
+    Filters the active courses only.
+    """
+    def get_query_set(self):
+        return super(
+            CourseManager,
+            self).get_query_set().filter(active__exact=True)
 
 
 class Course(models.Model):
@@ -14,23 +26,46 @@ class Course(models.Model):
     class Meta:
         verbose_name = _('Course')
         verbose_name_plural = _('Courses')
-        
+
+    objects = CourseManager()
+    all = models.Manager()
+
     title = models.CharField(
         _('Title'),
         max_length=256)
     code = models.CharField(
         _('Code'),
         max_length=16)
-    instructor = models.ForeignKey(
+    instructors = TagAutocompleteField(
+        _('Instructors'),
+        help_text=_('Autocompleting, comma separated list of instructors.'
+                    ' If typed nicely, the system will be able to'
+                    ' automagically figure out known people. The complete'
+                    ' list of instructors can be found into the "Tagging"'
+                    ' panel, under "Tags".'))
+    known_instructors = ManyToManyField(
         Person,
-        verbose_name=_('Instructor'),
-        related_name='courses_as_instructor')
-    assistants = models.ManyToManyField(
-        Person,
-        verbose_name=_('Teaching Assistants'),
+        _('Known instructors'),
+        help_text=_('Instructors that match known people.'),
+        editable=False,
         blank=True,
-        null=True,
-        related_name='courses_as_assistant')
+        null=True)
+    assistants = TagAutocompleteField(
+        _('Assistants'),
+        help_text=_('Autocompleting, comma separated list of assistants.'
+                    ' If typed nicely, the system will be able to'
+                    ' automagically figure out known people. The complete'
+                    ' list of assistants can be found into the "Tagging"'
+                    ' panel, under "Tags".'),
+        blank=True,
+        null=True)
+    known_assistants = ManyToManyField(
+        Person,
+        _('Known assistants'),
+        help_text=_('Assistants that match known people.'),
+        editable=False,
+        blank=True,
+        null=True)
     description = models.TextField(
         _('Description'),
         blank=True,
@@ -55,7 +90,18 @@ class Course(models.Model):
         null=True)
 
     def __unicode__(self):
-        return u'%s - %s (%s)' % (self.title, self.code, self.instructor)
+        return u'%s - %s (%s)' % (
+            self.title,
+            self.code,
+            self.instructor)
+
+def update_course(sender, instance, created, kwargs**):
+    for i in ('instructors', 'assistants'):
+        instance.known_instructors.add(
+            list(set(getattr(instance, i).split(' ')) -
+                 set([x.name for x in getattr(instance, 'known_%s' % i)]))*)
+    instance.save()
+signals.post_save.connect(update_course, sender=Course)
 
 
 class Thesis(models.Model):
@@ -149,3 +195,5 @@ class Thesis(models.Model):
     def _completed(self):
         return self.date_completed is not None
     completed = property(_completed)
+
+

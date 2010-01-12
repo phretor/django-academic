@@ -19,4 +19,4 @@ def people(context, latest=5):
     except Person.DoesNotExist:
         logging.debug('No people found')
     return context
-register.inclusion_tag('tags/people/column.html', takes_context=True)(people)
+register.inclusion_tag('templatetags/people.html', takes_context=True)(people)
