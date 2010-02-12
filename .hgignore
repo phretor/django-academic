@@ -7,6 +7,7 @@ syntax: glob
 ._*
 *.pyc
 pip-log.txt
+*.egg-info
 
 **/build/*
 **.pbxuser
