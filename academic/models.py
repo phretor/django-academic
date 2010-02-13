@@ -15,7 +15,7 @@ from tagging.models import Tag
 from filebrowser.fields import FileBrowseField
 
 from datetime import datetime
-
+import os
 
 class Rank(models.Model):
     """
@@ -420,16 +420,9 @@ class Paper(models.Model):
         return ('research_paper', (), { 'object_id': self.id })
 
     def _get_downloads(self):
-        l = list()
+        l = [self.fulltext, self.presentation, self.extra_attachment,]
         
-        if self.fulltext:
-            l.append(self.fulltext)
-        if self.presentation:
-            l.append(self.presentation)
-        if self.extra_attachment:
-            l.append(self.extra_attachment)
-        
-        return l
+        return filter(lambda x: x and os.path.exists(x.path_full), l)
     downloads = property(_get_downloads)
 
     def _get_html_id(self):
