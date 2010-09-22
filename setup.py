@@ -20,8 +20,7 @@ setup(
     url = 'http://bitbucket.org/phretor/django-academic',
     author = 'Federico Maggi',
     author_email = 'federico@maggi.cc',
-    description = 'A collection of Django loosely coupled applications'
-    ' useful to describe an academic context',
+    description = 'A collection of models useful to describe an academic context',
     long_description = long_description,
     
     packages = find_packages(),

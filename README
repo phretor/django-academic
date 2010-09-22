@@ -1,3 +1,2 @@
-A collection of Django loosely coupled applications useful to describe
-an academic context such as a research laboratory, or to manage a list
-of teaching acitivities such as courses, professors, theses, etc.
+A collection of models useful to describe an academic context such as a
+research laboratory.
