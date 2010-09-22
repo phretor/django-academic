@@ -7,7 +7,7 @@ try:
     from academic import get_version
     VERSION = get_version().replace(' ', '-')
 except ImportError:
-    VERSION = '0.1-alpha-1'
+    VERSION = '0.1.0'
 
 try:
     long_description = open('README').read()
