@@ -19,12 +19,14 @@ class PersonAdmin(admin.ModelAdmin):
         'e_mail',
         'web_page',
         'rank')
+    '''
     list_editable = (
         'public',
         'current',
         'e_mail',
         'web_page',
         'rank')
+    '''
     list_filter = (
         'public',)
     search_fields = (
@@ -62,10 +64,12 @@ class OrganizationAdmin(admin.ModelAdmin):
         'name',
         'web_page',
         'country',)
+    '''
     list_editable = (
         'name',
         'country',
         'web_page',)
+    '''
     search_fields = (
         'name',
         'country',
@@ -81,11 +85,13 @@ class SponsorAdmin(OrganizationAdmin):
         'name',
         'web_page',
         'country',)
+    '''
     list_editable = (
         'order',
         'name',
         'country',
         'web_page',)
+    '''
 admin.site.register(Sponsor, SponsorAdmin)
 
 
@@ -98,11 +104,13 @@ class ConferenceEditionAdmin(admin.ModelAdmin):
         'year',
         'address',
         'web_page')
+    '''
     list_editable = (
         'year',
         'month',
         'address',
         'web_page')
+    '''
 admin.site.register(ConferenceEdition, ConferenceEditionAdmin)
 
 class ConferenceEditionInlineForm(forms.ModelForm):
@@ -136,11 +144,13 @@ class ConferenceProceedingsAdmin(admin.ModelAdmin):
         'volume',
         'number',
         'edition')
+    '''
     list_editable = (
         'year',
         'volume',
         'number',
         'edition')
+    '''
 admin.site.register(ConferenceProceedings, ConferenceProceedingsAdmin)
 
 class BookAdminModelForm(forms.ModelForm):
@@ -170,11 +180,13 @@ class BookAdmin(admin.ModelAdmin):
         'volume',
         'number',
         'edition')
+    '''
     list_editable = (
         'year',
         'volume',
         'number',
         'edition')
+    '''
 admin.site.register(Book, BookAdmin)
 admin.site.register(Journal, BookAdmin)
 admin.site.register(BookChapter, BookAdmin)
@@ -187,9 +199,11 @@ class PublicationAdmin(admin.ModelAdmin):
         'nickname',
         'title',
         'year',)
+    '''
     list_editable = (
         'title',
         'year')
+    '''
 admin.site.register(ConferenceArticle, PublicationAdmin)
 admin.site.register(JournalArticle, PublicationAdmin)
 admin.site.register(TechnicalReport, PublicationAdmin)
@@ -216,10 +230,12 @@ class ProjectAdmin(admin.ModelAdmin):
         'short_title',
         'excerpt',
         'topic']
+    '''
     list_editable = [
         'short_title',
         'excerpt',
         'topic']
+    '''
 admin.site.register(Project, ProjectAdmin)
 
 class TopicAdmin(admin.ModelAdmin):
@@ -230,7 +246,9 @@ class TopicAdmin(admin.ModelAdmin):
         'highlight',
         'highlight_order',
         'description']
+    '''
     list_editable = [
         'highlight',
         'highlight_order']
+    '''
 admin.site.register(Topic, TopicAdmin)
