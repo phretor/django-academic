@@ -58,7 +58,7 @@ class Organization(models.Model):
         validators=[RegexValidator(regex=r'^[A-Za-z]+$')])
 
     def __unicode__(self):
-        return self.acronym or self.name
+        return self.name
 
 
 class Institution(Organization):
@@ -431,7 +431,7 @@ class Topic(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('topic_detail', (), {'object_id': self.pk})
+        return ('academic_topic_detail', (), {'object_id': self.pk})
 
     def __unicode__(self):
         return self.title
@@ -442,10 +442,30 @@ class HighlightedProjectManager(models.Manager):
         return super(HighlightedProjectManager, self).get_query_set().filter(
             highlight=True)
 
+class Download(models.Model):
+    class Meta:
+        ordering = [
+            'title', ]
+    
+    title = models.CharField(
+        max_length=256)
+    description = models.TextField(
+        blank=True,
+        null=True)
+    file = FileBrowseField(
+        _('File'),
+        max_length=256,
+        format='Document',
+        blank=True,
+        null=True)
+
+    def __unicode__(self):
+        return u'%s%s' % (self.title, self.file)
 
 class Project(models.Model):
     class Meta:
         ordering = [
+            'topic',
             'modified',
             'created']
 
@@ -478,6 +498,11 @@ class Project(models.Model):
         null=True,
         blank=True,
         help_text='This content will be rendered right after the title.')
+    downloads = models.ManyToManyField(
+        Download,
+        null=True,
+        blank=True,
+        help_text='Downloadable files')
     footer = models.TextField(
         null=True,
         blank=True,
@@ -511,3 +536,10 @@ class Project(models.Model):
         blank=True,
         help_text='Optional related topics.',
         related_name='secondary_projects')
+
+    def __unicode__(self):
+        return self.short_title
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ('academic_project_detail', (), {'object_id': self.pk})
