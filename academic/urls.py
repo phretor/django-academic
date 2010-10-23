@@ -9,6 +9,8 @@ from academic.views import *
 urlpatterns = patterns(
     '',
 
+    url(r'^publishing/', include('academic.publishing.urls')),
+
     url(r'^sponsors/$',
         cache_page(object_list, settings.CACHE_MIDDLEWARE_SECONDS),
         {'template_name': 'academic/sponsor_list.html',
@@ -44,10 +46,4 @@ urlpatterns = patterns(
         {'template_name': 'academic/project_detail.html',
          'queryset': Project.objects.all() },
         name='academic_project_detail'),
-
-    url(r'^publications/$',
-        cache_page(object_list, settings.CACHE_MIDDLEWARE_SECONDS),
-        {'template_name': 'academic/publication_list.html',
-         'queryset': Publication.objects.all() },
-        name='academic_publication_list'),
 )
