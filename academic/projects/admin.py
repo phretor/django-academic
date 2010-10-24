@@ -3,9 +3,7 @@ from django import forms
 from django.db import models
 from django.conf import settings
 
-from academic.models import *
-
-admin.site.register(Download)
+from academic.projects.models import *
 
 class ProjectAdmin(admin.ModelAdmin):
     class Media:

@@ -6,8 +6,9 @@ from filebrowser.fields import FileBrowseField
 from django_countries.fields import CountryField
 
 from academic.utils import *
-from academic.people.models import *
+
 from academic.organizations.models import *
+from academic.people.models import *
 
 class Conference(models.Model):
     class Meta:
@@ -93,7 +94,7 @@ class Publication(models.Model):
         null=True,
         blank=True)
     authors = models.ManyToManyField(
-        'academic.people.Person',
+        Person,
         related_name='publications',
         blank=True,
         null=True)
@@ -145,12 +146,12 @@ class Publication(models.Model):
 
 class Book(Publication):
     editors = models.ManyToManyField(
-        'academic.people.Person',
+        Person,
         related_name='proceedings',
         blank=True,
         null=True)
     publisher = models.ForeignKey(
-        'academic.organizations.Publisher',
+        Publisher,
         related_name='books',
         blank=True,
         null=True)
@@ -216,12 +217,12 @@ class ConferenceArticle(Publication):
 
 class TechnicalReport(Publication):
     institution = models.ManyToManyField(
-        'academic.organizations.Institution')
+        Institution)
 
 
 class Thesis(Publication):
     school = models.ForeignKey(
-        'academic.organizations.School')
+        School)
 
 
 class MasterThesis(Thesis):

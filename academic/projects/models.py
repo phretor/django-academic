@@ -2,35 +2,11 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.core.validators import RegexValidator
 
-from filebrowser.fields import FileBrowseField
-from django_countries.fields import CountryField
-
 from academic.utils import *
 
-from academic.organizations.models import *
-from academic.publishing.models import *
+from academic.content.models import *
 from academic.people.models import *
-
-class Download(models.Model):
-    class Meta:
-        ordering = [
-            'title', ]
-    
-    title = models.CharField(
-        max_length=256)
-    description = models.TextField(
-        blank=True,
-        null=True)
-    file = FileBrowseField(
-        _('File'),
-        max_length=256,
-        format='Document',
-        blank=True,
-        null=True)
-
-    def __unicode__(self):
-        return u'%s%s' % (self.title, self.file)
-
+from academic.publishing.models import *
 
 class HighlightedTopicManager(models.Manager):
     def get_query_set(self):
@@ -130,17 +106,17 @@ class Project(models.Model):
         blank=True,
         help_text='This content will be rendered at the bottom of the page.')
     people = models.ManyToManyField(
-        'academic.people.Person',
+        Person,
         help_text='People involved in this project.',
         related_name='projects')
     organizations = models.ManyToManyField(
-        'academic.organizations.Organization',
+        Organization,
         help_text='Organizations involved other than the lab.',
         blank=True,
         null=True,
         related_name='projects')
     publications = models.ManyToManyField(
-        'academic.publishing.Publication',
+        Publication,
         blank=True,
         null=True)
     topic = models.ForeignKey(
@@ -148,7 +124,7 @@ class Project(models.Model):
         help_text='This is the main topic.',
         related_name='projects')
     sponsors = models.ManyToManyField(
-        'academic.organizations.Sponsor',
+        Sponsor,
         blank=True,
         null=True,
         help_text='sponsored_projects')

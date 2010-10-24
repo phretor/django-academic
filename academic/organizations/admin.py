@@ -3,7 +3,7 @@ from django import forms
 from django.db import models
 from django.conf import settings
 
-from academic.organizations import *
+from academic.organizations.models import *
 
 class OrganizationAdmin(admin.ModelAdmin):
     list_display_links = (

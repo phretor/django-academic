@@ -3,7 +3,7 @@ from django import forms
 from django.db import models
 from django.conf import settings
 
-from academic.publications.models import *
+from academic.publishing.models import *
 
 class ConferenceEditionAdmin(admin.ModelAdmin):
     list_display_links = (

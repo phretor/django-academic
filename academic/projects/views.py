@@ -3,7 +3,7 @@ from django.template import loader
 from django.shortcuts import get_object_or_404
 from django.views.generic.list_detail import object_detail
 
-from academic.models import *
+from academic.projects.models import *
 
 def project_detail(
     request, queryset, object_id=None, slug=None,

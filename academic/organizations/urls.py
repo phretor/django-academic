@@ -3,14 +3,14 @@ from django.conf import settings
 from django.views.decorators.cache import cache_page
 from django.views.generic.list_detail import object_list, object_detail
 
-from academic.people.models import *
+from academic.organizations.models import *
 
 urlpatterns = patterns(
     '',
 
-    url(r'^$',
+    url(r'^sponsors/$',
         cache_page(object_list, settings.CACHE_MIDDLEWARE_SECONDS),
-        {'template_name': 'academic/person_list.html',
-         'queryset': Person.objects.all() },
-        name='academic_person_list'),
+        {'template_name': 'academic/sponsor_list.html',
+         'queryset': Sponsor.objects.all() },
+        name='academic_sponsor_list'),
 )

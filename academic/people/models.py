@@ -7,6 +7,8 @@ from django_countries.fields import CountryField
 
 from datetime import date
 
+from academic.utils import *
+
 from academic.organizations.models import *
 
 class Rank(models.Model):
@@ -49,7 +51,7 @@ class Person(models.Model):
             'first_name', ]
 
     affiliation = models.ManyToManyField(
-        'academic.organizations.Organization',
+        Organization,
         blank=True,
         null=True,
         related_name='people')
