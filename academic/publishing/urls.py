@@ -12,5 +12,5 @@ urlpatterns = patterns(
         cache_page(object_list, settings.CACHE_MIDDLEWARE_SECONDS),
         {'template_name': 'academic/publication_list.html',
          'queryset': Publication.objects.all() },
-        name='academic_publication_list'),
+        name='academic_publishing_publication_list'),
 )

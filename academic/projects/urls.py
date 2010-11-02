@@ -13,23 +13,23 @@ urlpatterns = patterns(
         cache_page(object_detail, settings.CACHE_MIDDLEWARE_SECONDS),
         {'template_name': 'academic/topic_detail.html',
          'queryset': Topic.objects.all() },
-        name='academic_topic_detail'),
+        name='academic_projects_topic_detail'),
 
     url(r'^topics/$',
         cache_page(object_list, settings.CACHE_MIDDLEWARE_SECONDS),
         {'template_name': 'academic/topic_list.html',
          'queryset': Topic.objects.all() },
-        name='academic_topic_list'),
+        name='academic_projects_topic_list'),
         
     url(r'^projects/$',
         cache_page(object_list, settings.CACHE_MIDDLEWARE_SECONDS),
         {'template_name': 'academic/project_list.html',
          'queryset': Project.objects.all() },
-        name='academic_project_list'),
+        name='academic_projects_project_list'),
 
     url(r'^projects/(?P<object_id>\d+)/$',
         cache_page(project_detail, settings.CACHE_MIDDLEWARE_SECONDS),
         {'template_name': 'academic/project_detail.html',
          'queryset': Project.objects.all() },
-        name='academic_project_detail'),
+        name='academic_projects_project_detail'),
 )

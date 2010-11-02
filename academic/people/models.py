@@ -96,7 +96,11 @@ class Person(models.Model):
         format='Image',
         blank=True,
         null=True)
-    
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ('academic_people_person_detail', (), {'object_id': self.pk})
+
     def __unicode__(self):
         return u'%s' % self.name
 

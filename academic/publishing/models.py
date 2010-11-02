@@ -65,6 +65,7 @@ class ConferenceEdition(models.Model):
     def __unicode__(self):
         return u'%s %s' % (self.conference, self.year)
 
+
 class Publication(models.Model):
     """
     A scientific publication.
@@ -136,7 +137,7 @@ class Publication(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('publication', (), { 'object_id': self.id })
+        return ('academic_publishing_publication', (), { 'object_id': self.id })
 
     def __unicode__(self):
         return u'%s %s' % (
