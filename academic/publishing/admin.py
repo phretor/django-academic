@@ -2,14 +2,15 @@ from django.contrib import admin
 from django import forms
 from django.db import models
 from django.conf import settings
+from django.core import validators
 
 from academic.publishing.models import *
 
 class ConferenceEditionAdmin(admin.ModelAdmin):
     list_display_links = (
-        'conference',)
+        'nickname',)
     list_display = (
-        'conference',
+        'nickname',
         'month',
         'year',
         'address',
@@ -37,8 +38,6 @@ class ConferenceAdmin(admin.ModelAdmin):
 admin.site.register(Conference, ConferenceAdmin)
 
 class ConferenceProceedingsAdmin(admin.ModelAdmin):
-    exclude = (
-        'authors',)
     list_display_links = (
         'title',)
     list_display = (
@@ -49,25 +48,71 @@ class ConferenceProceedingsAdmin(admin.ModelAdmin):
         'edition')
 admin.site.register(ConferenceProceedings, ConferenceProceedingsAdmin)
 
-class BookAdminModelForm(forms.ModelForm):
-    class Meta:
-        model = Book
-    
-    def clean(self):
-        cleaned_data = self.cleaned_data
-        authors = cleaned_data.get('authors')
-        editors = cleaned_data.get('editors')
+class AuthorshipInline(admin.TabularInline):
+    verbose_name = 'Author'
+    verbose_name_plural = 'Authors'
+    model = Authorship
+    extra = 5
 
-        if authors and editors:
-            raise forms.ValidationError('BibTeX disallows having both'\
-                                            ' authors and editors.')
-        return cleaned_data
+class PublicationAdmin(admin.ModelAdmin):
+    prepopulated_fields = {
+        'nickname': ('title',)
+        }
+    inlines = (AuthorshipInline,)
+    list_display_links = (
+        'nickname',)
+    list_display = (
+        'nickname',
+        'title',
+        'year',)
+
+admin.site.register(ConferenceArticle, PublicationAdmin)
+admin.site.register(JournalArticle, PublicationAdmin)
+admin.site.register(TechnicalReport, PublicationAdmin)
+
+class AdvisorshipInline(admin.TabularInline):
+    verbose_name = 'Advisor'
+    verbose_name_plural = 'Advisors'
+    model = Advisorship
+    extra = 1
+
+class CoadvisorshipInline(admin.TabularInline):
+    verbose_name = 'Coadvisor'
+    verbose_name_plural = 'Coadvisors'
+    model = Coadvisorship
+    extra = 1
+
+class ThesisAdmin(PublicationAdmin):
+    inlines = (
+        AdvisorshipInline,
+        CoadvisorshipInline)
+
+class ReviewingInline(admin.TabularInline):
+    verbose_name = 'Reviewer'
+    verbose_name_plural = 'Reviewers'
+    model = Reviewing
+    extra = 1
+
+class PhdThesisAdmin(ThesisAdmin):
+    inlines = (
+        AdvisorshipInline,
+        CoadvisorshipInline,
+        ReviewingInline)
+
+admin.site.register(MasterThesis, ThesisAdmin)
+admin.site.register(PhdThesis, PhdThesisAdmin)
+
+class EditorshipInline(admin.TabularInline):
+    verbose_name = 'Editor'
+    verbose_name_plural = 'Editors'
+    model = Editorship
+    extra = 5
 
 class BookAdmin(admin.ModelAdmin):
-    form = BookAdminModelForm
-    filter_horizontal = [
-        'authors',
-        'editors', ]
+    prepopulated_fields = {
+        'nickname': ('title',)
+        }
+    inlines = (EditorshipInline,)
     list_display_links = (
         'title',)
     list_display = (
@@ -79,18 +124,3 @@ class BookAdmin(admin.ModelAdmin):
 admin.site.register(Book, BookAdmin)
 admin.site.register(Journal, BookAdmin)
 admin.site.register(BookChapter, BookAdmin)
-
-class PublicationAdmin(admin.ModelAdmin):
-    filter_horizontal = ['authors', ]
-    list_display_links = (
-        'nickname',)
-    list_display = (
-        'nickname',
-        'title',
-        'year',)
-
-admin.site.register(ConferenceArticle, PublicationAdmin)
-admin.site.register(JournalArticle, PublicationAdmin)
-admin.site.register(TechnicalReport, PublicationAdmin)
-admin.site.register(MasterThesis, PublicationAdmin)
-admin.site.register(PhdThesis, PublicationAdmin)

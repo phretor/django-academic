@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.core.validators import RegexValidator
+from django.db.models.signals import post_save
 
 from filebrowser.fields import FileBrowseField
 from django_countries.fields import CountryField
@@ -30,7 +31,9 @@ class Conference(models.Model):
         validators=[RegexValidator(regex=r'^[A-Za-z]+$')])
 
     def __unicode__(self):
-        return self.acronym or self.name
+        if self.acronym != '':
+            return self.acronym
+        return self.name
 
 
 class ConferenceEdition(models.Model):
@@ -40,6 +43,7 @@ class ConferenceEdition(models.Model):
             '-month',
             'conference__acronym',
             'conference__name',]
+    
     conference = models.ForeignKey(
         Conference)
     month = models.PositiveSmallIntegerField(
@@ -62,8 +66,12 @@ class ConferenceEdition(models.Model):
         blank=True,
         null=True)
 
-    def __unicode__(self):
+    def _get_nickname(self):
         return u'%s %s' % (self.conference, self.year)
+    nickname = property(_get_nickname)
+
+    def __unicode__(self):
+        return self.nickname
 
 
 class Publication(models.Model):
@@ -73,17 +81,17 @@ class Publication(models.Model):
     class Meta:
         verbose_name = _('Publication')
         verbose_name_plural = _('Publications')
-        ordering = ['year',]
+        ordering = ['-year',]
 
-    nickname = models.CharField(
-        max_length=16,
-        help_text=_(
-            'A mnemonic name that "idenfies" this publication.'\
-                ' E.g., concept_drift. (lowcase letters and dashes only)'),
-        validators=[RegexValidator(regex=r'^[a-z]+(_[a-z]+)*$')])
     title = models.CharField(
         _('Title'),
         max_length=1024)
+    nickname = models.CharField(
+        max_length=32,
+        help_text=_(
+            'A mnemonic name that "idenfies" this publication.'\
+                ' E.g., concept_drift. (lowcase letters and dashes only)'),
+        validators=[RegexValidator(regex=r'^[a-z]+([-_][a-z]+)*$')])
     year = models.CharField(
         max_length=4,
         choices=YEARS,
@@ -97,6 +105,7 @@ class Publication(models.Model):
     authors = models.ManyToManyField(
         Person,
         related_name='publications',
+        through='Authorship',
         blank=True,
         null=True)
     attachment = FileBrowseField(
@@ -137,7 +146,7 @@ class Publication(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('academic_publishing_publication', (), { 'object_id': self.id })
+        return ('academic_publishing_publication', (), {'object_id': self.id})
 
     def __unicode__(self):
         return u'%s %s' % (
@@ -145,10 +154,19 @@ class Publication(models.Model):
             self.year)
 
 
+class Authorship(models.Model):
+    class Meta:
+        ordering = ('order',)
+    person = models.ForeignKey(Person)
+    publication = models.ForeignKey(Publication)
+    order = models.PositiveSmallIntegerField()
+    
+
 class Book(Publication):
     editors = models.ManyToManyField(
         Person,
         related_name='proceedings',
+        through='Editorship',
         blank=True,
         null=True)
     publisher = models.ForeignKey(
@@ -174,6 +192,15 @@ class Book(Publication):
         blank=True,
         null=True)
 
+
+class Editorship(models.Model):
+    class Meta:
+        ordering = ('order',)
+    person = models.ForeignKey(Person)
+    publication = models.ForeignKey(Book)
+    order = models.PositiveSmallIntegerField()
+
+
 class Journal(Book):
     pass
 
@@ -190,12 +217,18 @@ class BookChapter(Book):
 
 
 class JournalArticle(Publication):
+    class Meta:
+        verbose_name_plural = 'Journal papers'
+        verbose_name = 'Journal paper'
+    
     journal = models.ForeignKey(
         Journal)
 
+
 class ConferenceProceedings(Book):
     class Meta:
-        verbose_name_plural = _('Conference proceedings')
+        verbose_name = _('Proceedings')
+        verbose_name_plural = _('Proceedings')
     conference_edition = models.ForeignKey(
         ConferenceEdition)
 
@@ -204,6 +237,10 @@ class ConferenceProceedings(Book):
 
 
 class ConferenceArticle(Publication):
+    class Meta:
+        verbose_name_plural = 'Conference papers'
+        verbose_name = 'Conference paper'
+    
     presentation = FileBrowseField(
         _('Presentation'),
         max_length=256,
@@ -224,6 +261,32 @@ class TechnicalReport(Publication):
 class Thesis(Publication):
     school = models.ForeignKey(
         School)
+    advisors = models.ManyToManyField(
+        Person,
+        through='Advisorship',
+        related_name='advised_theses')
+    co_advisors = models.ManyToManyField(
+        Person,
+        through='Coadvisorship',
+        blank=True,
+        null=True,
+        related_name='coadvised_theses')
+
+
+class Advisorship(models.Model):
+    class Meta:
+        ordering = ('order',)
+    person = models.ForeignKey(Person)
+    publication = models.ForeignKey(Thesis)
+    order = models.PositiveSmallIntegerField()
+
+
+class Coadvisorship(models.Model):
+    class Meta:
+        ordering = ('order',)
+    person = models.ForeignKey(Person)
+    publication = models.ForeignKey(Thesis)
+    order = models.PositiveSmallIntegerField()
 
 
 class MasterThesis(Thesis):
@@ -237,3 +300,15 @@ class PhdThesis(Thesis):
     class Meta:
         verbose_name_plural = 'PhD theses'
         verbose_name = 'PhD thesis'
+    reviewers = models.ManyToManyField(
+        Person,
+        through='Reviewing',
+        related_name='reviewed_phdtheses',
+        blank=True,
+        null=True)
+
+
+class Reviewing(models.Model):
+    person = models.ForeignKey(Person)
+    publication = models.ForeignKey(PhdThesis)
+    order = models.PositiveSmallIntegerField()

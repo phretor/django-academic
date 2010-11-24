@@ -12,10 +12,9 @@ class PersonAdmin(admin.ModelAdmin):
         'name',)
     list_display = (
         'name',
+        'has_picture',
         'public',
         'current',
-        'first_name',
-        'last_name',
         'e_mail',
         'web_page',
         'rank')

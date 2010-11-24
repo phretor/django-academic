@@ -101,6 +101,10 @@ class Person(models.Model):
     def get_absolute_url(self):
         return ('academic_people_person_detail', (), {'object_id': self.pk})
 
+    def _has_picture(self):
+        return self.picture != ''
+    has_picture = property(_has_picture)
+
     def __unicode__(self):
         return u'%s' % self.name
 

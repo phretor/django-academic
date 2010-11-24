@@ -5,7 +5,7 @@ from django.views.generic.list_detail import object_list, object_detail
 
 urlpatterns = patterns(
     '',
-
+    
     url(r'^publishing/', include('academic.publishing.urls')),
     url(r'^people/', include('academic.people.urls')),
     url(r'^organizations/', include('academic.organizations.urls')),
