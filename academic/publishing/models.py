@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.core.validators import RegexValidator
-from django.db.models.signals import post_save
+from django.template.defaultfilters import slugify
 
 from filebrowser.fields import FileBrowseField
 from django_countries.fields import CountryField
@@ -24,11 +24,10 @@ class Conference(models.Model):
         unique=True,
         db_index=True)
     acronym = models.CharField(
-        blank=True,
-        null=True,
         max_length=16,
-        help_text=_('E.g., RAID.'),
-        validators=[RegexValidator(regex=r'^[A-Za-z]+$')])
+        unique=True,
+        help_text=_('E.g., RAID, IMC, EC2ND, CCS, SSP'),
+        validators=[RegexValidator(regex=r'^[0-9A-Za-z]+$')])
 
     def __unicode__(self):
         if self.acronym != '':
@@ -43,6 +42,9 @@ class ConferenceEdition(models.Model):
             '-month',
             'conference__acronym',
             'conference__name',]
+        unique_together = (
+            'conference',
+            'year',)
     
     conference = models.ForeignKey(
         Conference)
@@ -65,13 +67,21 @@ class ConferenceEdition(models.Model):
         _('Web page'),
         blank=True,
         null=True)
+    slug = models.SlugField(
+        max_length=512,
+        editable=False,
+        db_index=True)
 
     def _get_nickname(self):
-        return u'%s %s' % (self.conference, self.year)
+        return self.slug
     nickname = property(_get_nickname)
 
     def __unicode__(self):
-        return self.nickname
+        return u'%s %s' % (self.conference, self.year)
+
+    def save(self, **kwargs):
+        self.slug = slugify('%s %s' % (self.conference.acronym, self.year))
+        super(ConferenceEdition, self).save(**kwargs)
 
 
 class Publication(models.Model):
@@ -79,6 +89,9 @@ class Publication(models.Model):
     A scientific publication.
     """
     class Meta:
+        unique_together = (
+            ('title',
+             'year'), )
         verbose_name = _('Publication')
         verbose_name_plural = _('Publications')
         ordering = ['-year',]
@@ -86,12 +99,6 @@ class Publication(models.Model):
     title = models.CharField(
         _('Title'),
         max_length=1024)
-    nickname = models.CharField(
-        max_length=32,
-        help_text=_(
-            'A mnemonic name that "idenfies" this publication.'\
-                ' E.g., concept_drift. (lowcase letters and dashes only)'),
-        validators=[RegexValidator(regex=r'^[a-z]+([-_][a-z]+)*$')])
     year = models.CharField(
         max_length=4,
         choices=YEARS,
@@ -122,7 +129,9 @@ class Publication(models.Model):
         null=True)
     bibtex = models.TextField(
         verbose_name=_('BibTeX Entry'),
-        help_text=_('At this moment, the BibTeX is not parsed for content.'),
+        help_text=_(
+            'At this moment, the BibTeX is not parsed for content.'\
+                'This will override the auto-generated BibTeX.'),
         blank=True,
         null=True)
     abstract = models.TextField(
@@ -139,20 +148,38 @@ class Publication(models.Model):
         _('Last updated on'),
         auto_now=True,
         db_index=True)
-    citation_key = models.SlugField(
+    slug = models.SlugField(
+        help_text=_('This is autofilled, then you may modify it if you wish.'),
+        unique=True,
         max_length=512,
-        editable=False,
         db_index=True)
+
+    def _get_first_author(self):
+        authorships = self.authorship_set.all()
+        if authorships.count() > 0:
+            return authorships[0].person
+        return None
+    first_author = property(_get_first_author)
+
+    def _get_author_list(self):
+        author_list = ', '.join(map(
+                lambda m:m.person.name , self.authorship_set.all()))
+        return author_list
+    author_list = property(_get_author_list)
+
+    @models.permalink
+    def get_bibtex_url(self):
+        return ('academic_publishing_publication_detail_bibtex', (), {
+                'slug': self.slug})
 
     @models.permalink
     def get_absolute_url(self):
-        return ('academic_publishing_publication', (), {'object_id': self.id})
+        return ('academic_publishing_publication_detail', (), {'slug': self.slug})
 
     def __unicode__(self):
         return u'%s %s' % (
             self.title,
             self.year)
-
 
 class Authorship(models.Model):
     class Meta:
@@ -190,7 +217,9 @@ class Book(Publication):
     edition = models.CharField(
         max_length=128,
         blank=True,
-        null=True)
+        null=True,
+        help_text=_('E.g., First, Second, II, 2, Second edition.'))
+    
 
 
 class Editorship(models.Model):
@@ -218,11 +247,16 @@ class BookChapter(Book):
 
 class JournalArticle(Publication):
     class Meta:
-        verbose_name_plural = 'Journal papers'
-        verbose_name = 'Journal paper'
+        verbose_name_plural = _('Journal papers')
+        verbose_name = _('Journal paper')
     
     journal = models.ForeignKey(
         Journal)
+    nickname = models.SlugField(
+        max_length=32,
+        help_text=_(
+            'A mnemonic name that "idenfies" this publication.'\
+                ' E.g., concept_drift. (lowcase letters and dashes only)'))
 
 
 class ConferenceProceedings(Book):
@@ -238,9 +272,13 @@ class ConferenceProceedings(Book):
 
 class ConferenceArticle(Publication):
     class Meta:
-        verbose_name_plural = 'Conference papers'
-        verbose_name = 'Conference paper'
-    
+        verbose_name_plural = _('Conference papers')
+        verbose_name = _('Conference paper')
+    nickname = models.SlugField(
+        max_length=32,
+        help_text=_(
+            'A mnemonic name that "idenfies" this publication.'\
+                ' E.g., concept_drift. (lowcase letters and dashes only)'))
     presentation = FileBrowseField(
         _('Presentation'),
         max_length=256,
@@ -298,8 +336,8 @@ class MasterThesis(Thesis):
 
 class PhdThesis(Thesis):
     class Meta:
-        verbose_name_plural = 'PhD theses'
-        verbose_name = 'PhD thesis'
+        verbose_name_plural = _('PhD theses')
+        verbose_name = _('PhD thesis')
     reviewers = models.ManyToManyField(
         Person,
         through='Reviewing',

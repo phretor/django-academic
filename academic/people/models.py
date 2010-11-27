@@ -19,7 +19,8 @@ class Rank(models.Model):
     class Meta:
         verbose_name = _('Rank')
         verbose_name_plural = _('Ranks')
-        ordering = ['order']
+        ordering = [
+            'order',]
 
     name = models.CharField(
         _('Rank name'),
@@ -111,3 +112,7 @@ class Person(models.Model):
     def _get_name(self):
         return u'%s %s' % (self.first_name, self.last_name)
     name = property(_get_name)
+
+    def _get_slug(self):
+        return (u'%s-%s' % (self.first_name[0], self.last_name)).lower()
+    slug = property(_get_slug)

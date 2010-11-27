@@ -8,9 +8,30 @@ from academic.publishing.models import *
 urlpatterns = patterns(
     '',
 
+    url(r'^v/(?P<slug>.+)\.bib$',
+        cache_page(object_detail, settings.CACHE_MIDDLEWARE_SECONDS),
+        {'template_name': 'academic/publication_detail.bib',
+         'mimetype': 'text/plain',
+         'queryset': Publication.objects.all() },
+        name='academic_publishing_publication_detail_bibtex'),
+
+    url(r'^v/(?P<slug>.+)$',
+        cache_page(object_detail, settings.CACHE_MIDDLEWARE_SECONDS),
+        {'template_name': 'academic/publication_detail.html',
+         'queryset': Publication.objects.all() },
+        name='academic_publishing_publication_detail'),
+
+    url(r'^bibtex$',
+        cache_page(object_list, settings.CACHE_MIDDLEWARE_SECONDS),
+        {'template_name': 'academic/publication_list.bib',
+         'mimetype': 'text/plain',
+         'queryset': Publication.objects.all() },
+        name='academic_publishing_publication_list_bibtex'),
+
     url(r'^$',
         cache_page(object_list, settings.CACHE_MIDDLEWARE_SECONDS),
         {'template_name': 'academic/publication_list.html',
          'queryset': Publication.objects.all() },
         name='academic_publishing_publication_list'),
+
 )
