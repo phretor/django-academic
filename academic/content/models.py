@@ -3,6 +3,11 @@ from django.utils.translation import ugettext_lazy as _
 from django.core.validators import RegexValidator
 
 from filebrowser.fields import FileBrowseField
+try:
+    from south.modelsinspector import add_introspection_rules
+    add_introspection_rules([], ["^filebrowser\.fields\.FileBrowseField"])
+except:
+    pass
 
 class Download(models.Model):
     class Meta:
