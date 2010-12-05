@@ -53,19 +53,21 @@ class Person(models.Model):
 
     affiliation = models.ManyToManyField(
         Organization,
+        verbose_name=_('Affiliations'),
         blank=True,
         null=True,
         related_name='people')
     public = models.BooleanField(
         verbose_name=_('Public?'),
         help_text=_('Toggle visibility on public pages.'),
-        default=False)
+        default=True)
     current = models.BooleanField(
         help_text=_('Is he/she still in the group?'),
         default=True)
     rank = models.ForeignKey(
         Rank,
         verbose_name=_('Academic Rank'),
+        help_text=_('Leave blank if this person is not in the group anymore.'),
         related_name='people',
         blank=True,
         null=True)
@@ -88,7 +90,7 @@ class Person(models.Model):
         blank=True,
         null=True)
     description = models.TextField(
-        _('Description'),
+        _('Short bio'),
         blank=True,
         null=True)
     picture = FileBrowseField(

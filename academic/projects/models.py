@@ -121,6 +121,7 @@ class Project(models.Model):
         null=True)
     topic = models.ForeignKey(
         Topic,
+        verbose_name=_('Main topic'),
         help_text='This is the main topic.',
         related_name='projects')
     sponsors = models.ManyToManyField(

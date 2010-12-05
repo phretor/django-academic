@@ -48,6 +48,11 @@ class ConferenceEdition(models.Model):
     
     conference = models.ForeignKey(
         Conference)
+    edition_number = models.PositiveSmallIntegerField(
+        help_text=_('E.g., "13" as in "Proceedings of the 13th Symposioum on ..."'),
+        blank=True,
+        null=True,
+        db_index=True)
     month = models.PositiveSmallIntegerField(
         choices=MONTHS,
         blank=True,
@@ -59,7 +64,7 @@ class ConferenceEdition(models.Model):
         help_text=_('Year of the event'),
         db_index=True)
     address = models.TextField(
-        _('Address'),
+        _('Venue'),
         help_text=_('Conference location.'),
         blank=True,
         null=True)
@@ -72,15 +77,12 @@ class ConferenceEdition(models.Model):
         editable=False,
         db_index=True)
 
-    def _get_nickname(self):
-        return self.slug
-    nickname = property(_get_nickname)
-
     def __unicode__(self):
         return u'%s %s' % (self.conference, self.year)
 
     def save(self, **kwargs):
-        self.slug = slugify('%s %s' % (self.conference.acronym, self.year))
+        if len(self.slug) == 0:
+            self.slug = slugify('%s %s' % (self.conference.acronym, self.year))
         super(ConferenceEdition, self).save(**kwargs)
 
 
@@ -150,6 +152,7 @@ class Publication(models.Model):
         db_index=True)
     slug = models.SlugField(
         help_text=_('This is autofilled, then you may modify it if you wish.'),
+        editable=False,
         unique=True,
         max_length=512,
         db_index=True)
@@ -180,6 +183,14 @@ class Publication(models.Model):
         return u'%s %s' % (
             self.title,
             self.year)
+
+    def save(self, **kwargs):
+        if len(self.slug) == 0:
+            self.slug = slugify('%s %s %s' % (
+                    self.first_author or '',
+                    self.title,
+                    self.year))
+        super(Publication, self).save(**kwargs)
 
 class Authorship(models.Model):
     class Meta:
@@ -252,12 +263,6 @@ class JournalArticle(Publication):
     
     journal = models.ForeignKey(
         Journal)
-    nickname = models.SlugField(
-        max_length=32,
-        help_text=_(
-            'A mnemonic name that "idenfies" this publication.'\
-                ' E.g., concept_drift. (lowcase letters and dashes only)'))
-
 
 class ConferenceProceedings(Book):
     class Meta:
@@ -274,11 +279,6 @@ class ConferenceArticle(Publication):
     class Meta:
         verbose_name_plural = _('Conference papers')
         verbose_name = _('Conference paper')
-    nickname = models.SlugField(
-        max_length=32,
-        help_text=_(
-            'A mnemonic name that "idenfies" this publication.'\
-                ' E.g., concept_drift. (lowcase letters and dashes only)'))
     presentation = FileBrowseField(
         _('Presentation'),
         max_length=256,

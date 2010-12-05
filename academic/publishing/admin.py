@@ -8,25 +8,19 @@ from django.utils.translation import ugettext_lazy as _
 from academic.publishing.models import *
 
 class ConferenceEditionAdmin(admin.ModelAdmin):
-    actions = ('make_proceedings',)
-    def make_proceedings(self, request, queryset):
+    actions = ('prepare_proceedings',)
+    def prepare_proceedings(self, request, queryset):
         c, e = 0, 0
-        for obj in queryset:
+        for ce in queryset:
+            title = ce.conference.name
+            year = ce.year
             cp = ConferenceProceedings(
-                conference_edition=obj.pk,
-                year=obj.year,
-                title=obj.conference.name)
-            if obj.month != '':
-                cp.month = obj.month
-            try:
-                cp.save()
-                c += 1
-            except Exception, err:
-                e += 1
-                pass
-        self.message_user(
-            request,
-            _('%d conference proceedings created (%d not saved: %s)' % (c, e, err)))
+                conference_edition=ce,
+                title=title,
+                year=year)
+            if ce.month != '':
+                cp.month = ce.month
+            cp.save()
         
     list_display_links = (
         'conference',)
@@ -64,11 +58,6 @@ class AuthorshipInline(admin.TabularInline):
     extra = 5
 
 class PublicationAdmin(admin.ModelAdmin):
-    prepopulated_fields = {
-        'slug': (
-            'title',
-            'year')
-        }
     inlines = (AuthorshipInline,)
     list_display_links = (
         'title',)
@@ -80,18 +69,13 @@ class PublicationAdmin(admin.ModelAdmin):
 admin.site.register(TechnicalReport, PublicationAdmin)
 
 class PaperAdmin(PublicationAdmin):
-    prepopulated_fields = {
-        'slug': (
-            'nickname',
-            'year')
-        }
+    pass
 
 class ConferenceArticleAdmin(PaperAdmin):
     fieldsets = (
         (None, {
                 'fields': (
                     'crossref',
-                    'nickname',
                     'title',
                     'year',
                     'month',
@@ -102,18 +86,15 @@ class ConferenceArticleAdmin(PaperAdmin):
         (_('Extra information'), {
                 'fields': (
                     'attachment',
-                    'notes',
-                    'slug',)}),
+                    'notes',)}),
         )
     list_display = (
-        'nickname',
         'author_list',
         'title',
         'year',)
 
 class JournalArticleAdmin(PaperAdmin):
     list_display = (
-        'nickname',
         'author_list',
         'title',
         'year',
@@ -189,23 +170,19 @@ class ConferenceProceedingsAdmin(BookAdmin):
                     'publisher',)
                 }),
         (_('Extra information'), {
+                'classes': (
+                    'collapse closed collapse-closed',),
                 'fields': (
                     'attachment',
                     'fulltext',
                     'address',
                     'edition',
-                    'notes',
-                    'slug')}),
+                    'notes',)}),
         )
-    prepopulated_fields = {
-        'slug': (
-            'conference_edition',
-            'year')
-        }
     inlines = (
         EditorshipInline,)
     list_display_links = (
-        'conference_edition',)
+        'title',)
     list_display = (
         'title',
         'conference_edition',
