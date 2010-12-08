@@ -20,7 +20,7 @@ class Migration(SchemaMigration):
         # Adding model 'Person'
         db.create_table('people_person', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('public', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('public', self.gf('django.db.models.fields.BooleanField')(default=True)),
             ('current', self.gf('django.db.models.fields.BooleanField')(default=True)),
             ('rank', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='people', null=True, to=orm['people.Rank'])),
             ('first_name', self.gf('django.db.models.fields.CharField')(max_length=64)),
@@ -74,7 +74,7 @@ class Migration(SchemaMigration):
             'last_name': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
             'mid_name': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
             'picture': ('filebrowser.fields.FileBrowseField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'}),
-            'public': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'public': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'rank': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'people'", 'null': 'True', 'to': "orm['people.Rank']"}),
             'web_page': ('django.db.models.fields.URLField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'})
         },

@@ -35,6 +35,9 @@ class Topic(models.Model):
     title = models.CharField(
         max_length=2048,
         db_index=True)
+    slug = models.SlugField(
+	max_length=128,
+	db_index=True)
     excerpt = models.TextField(
         null=True,
         blank=True)
@@ -48,7 +51,7 @@ class Topic(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('academic_topic_detail', (), {'object_id': self.pk})
+        return ('academic_projects_topic_detail', (), {'slug': self.slug})
 
     def __unicode__(self):
         return self.title
@@ -80,6 +83,9 @@ class Project(models.Model):
     short_title = models.CharField(
         max_length=1024,
         db_index=True)
+    slug = models.SlugField(
+	max_length=128,
+	db_index=True)
     title = models.CharField(
         max_length=2048,
         db_index=True)
@@ -141,4 +147,4 @@ class Project(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('academic_project_detail', (), {'object_id': self.pk})
+        return ('academic_projects_project_detail', (), {'slug': self.slug})

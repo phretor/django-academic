@@ -14,6 +14,7 @@ class Migration(SchemaMigration):
             ('highlight', self.gf('django.db.models.fields.BooleanField')(default=False, db_index=True)),
             ('highlight_order', self.gf('django.db.models.fields.PositiveSmallIntegerField')(default=0, db_index=True)),
             ('title', self.gf('django.db.models.fields.CharField')(max_length=2048, db_index=True)),
+            ('slug', self.gf('django.db.models.fields.SlugField')(max_length=128, db_index=True)),
             ('excerpt', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
             ('description', self.gf('django.db.models.fields.TextField')()),
         ))
@@ -25,6 +26,7 @@ class Migration(SchemaMigration):
             ('highlight', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('redirect_to', self.gf('django.db.models.fields.URLField')(max_length=200, null=True, blank=True)),
             ('short_title', self.gf('django.db.models.fields.CharField')(max_length=1024, db_index=True)),
+            ('slug', self.gf('django.db.models.fields.SlugField')(max_length=128, db_index=True)),
             ('title', self.gf('django.db.models.fields.CharField')(max_length=2048, db_index=True)),
             ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('modified', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
@@ -39,7 +41,7 @@ class Migration(SchemaMigration):
         db.create_table('projects_project_downloads', (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
             ('project', models.ForeignKey(orm['projects.project'], null=False)),
-            ('download', models.ForeignKey(orm['academic.download'], null=False))
+            ('download', models.ForeignKey(orm['content.download'], null=False))
         ))
         db.create_unique('projects_project_downloads', ['project_id', 'download_id'])
 
@@ -112,7 +114,7 @@ class Migration(SchemaMigration):
 
 
     models = {
-        'academic.download': {
+        'content.download': {
             'Meta': {'ordering': "['title']", 'object_name': 'Download'},
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'file': ('filebrowser.fields.FileBrowseField', [], {'max_length': '256', 'null': 'True', 'blank': 'True'}),
@@ -144,7 +146,7 @@ class Migration(SchemaMigration):
             'last_name': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
             'mid_name': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
             'picture': ('filebrowser.fields.FileBrowseField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'}),
-            'public': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'public': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'rank': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'people'", 'null': 'True', 'to': "orm['people.Rank']"}),
             'web_page': ('django.db.models.fields.URLField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'})
         },
@@ -159,7 +161,7 @@ class Migration(SchemaMigration):
             'Meta': {'ordering': "['topic', 'modified', 'created']", 'object_name': 'Project'},
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'downloads': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['academic.Download']", 'null': 'True', 'blank': 'True'}),
+            'downloads': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['content.Download']", 'null': 'True', 'blank': 'True'}),
             'excerpt': ('django.db.models.fields.CharField', [], {'max_length': '1024', 'null': 'True', 'blank': 'True'}),
             'footer': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'highlight': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
@@ -171,6 +173,7 @@ class Migration(SchemaMigration):
             'redirect_to': ('django.db.models.fields.URLField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'}),
             'related_topics': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'secondary_projects'", 'null': 'True', 'symmetrical': 'False', 'to': "orm['projects.Topic']"}),
             'short_title': ('django.db.models.fields.CharField', [], {'max_length': '1024', 'db_index': 'True'}),
+            'slug': ('django.db.models.fields.SlugField', [], {'max_length': '128', 'db_index': 'True'}),
             'sponsors': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['organizations.Sponsor']", 'null': 'True', 'blank': 'True'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '2048', 'db_index': 'True'}),
             'topic': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'projects'", 'to': "orm['projects.Topic']"})
@@ -182,21 +185,28 @@ class Migration(SchemaMigration):
             'highlight': ('django.db.models.fields.BooleanField', [], {'default': 'False', 'db_index': 'True'}),
             'highlight_order': ('django.db.models.fields.PositiveSmallIntegerField', [], {'default': '0', 'db_index': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'slug': ('django.db.models.fields.SlugField', [], {'max_length': '128', 'db_index': 'True'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '2048', 'db_index': 'True'})
         },
+        'publishing.authorship': {
+            'Meta': {'ordering': "('order',)", 'object_name': 'Authorship'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'order': ('django.db.models.fields.PositiveSmallIntegerField', [], {}),
+            'person': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['people.Person']"}),
+            'publication': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['publishing.Publication']"})
+        },
         'publishing.publication': {
-            'Meta': {'ordering': "['year']", 'object_name': 'Publication'},
+            'Meta': {'ordering': "['-year']", 'unique_together': "(('title', 'year'),)", 'object_name': 'Publication'},
             'abstract': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'attachment': ('filebrowser.fields.FileBrowseField', [], {'max_length': '256', 'null': 'True', 'blank': 'True'}),
-            'authors': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'publications'", 'null': 'True', 'symmetrical': 'False', 'to': "orm['people.Person']"}),
+            'authors': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'publications'", 'to': "orm['people.Person']", 'through': "orm['publishing.Authorship']", 'blank': 'True', 'symmetrical': 'False', 'null': 'True'}),
             'bibtex': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'citation_key': ('django.db.models.fields.SlugField', [], {'max_length': '512', 'db_index': 'True'}),
             'date_updated': ('django.db.models.fields.DateField', [], {'auto_now': 'True', 'db_index': 'True', 'blank': 'True'}),
             'fulltext': ('filebrowser.fields.FileBrowseField', [], {'max_length': '256', 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'month': ('django.db.models.fields.PositiveSmallIntegerField', [], {'db_index': 'True', 'null': 'True', 'blank': 'True'}),
-            'nickname': ('django.db.models.fields.CharField', [], {'max_length': '16'}),
             'notes': ('django.db.models.fields.CharField', [], {'max_length': '512', 'null': 'True', 'blank': 'True'}),
+            'slug': ('django.db.models.fields.SlugField', [], {'unique': 'True', 'max_length': '512', 'db_index': 'True'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '1024'}),
             'year': ('django.db.models.fields.CharField', [], {'max_length': '4', 'db_index': 'True'})
         }

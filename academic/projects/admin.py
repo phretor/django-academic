@@ -10,12 +10,16 @@ class ProjectAdmin(admin.ModelAdmin):
     class Media:
         js = (
             settings.ADMIN_MEDIA_PREFIX + 'tinymce/jscripts/tiny_mce/tiny_mce.js',
-            settings.MEDIA_URL + 'behavior/tinymce_setup.js',
+            settings.STATIC_URL + 'academic/js/tiny_mce//tinymce_setup.js',
             )
+    prepopulated_fields = {
+	'slug': ('short_title',)
+    }
     fieldsets = (
         (None, {
                 'fields': (
                     'short_title',
+		    'slug',
                     'title',
                     'excerpt',
                     'topic',
@@ -50,6 +54,14 @@ class ProjectAdmin(admin.ModelAdmin):
 admin.site.register(Project, ProjectAdmin)
 
 class TopicAdmin(admin.ModelAdmin):
+    class Media:
+        js = (
+            settings.ADMIN_MEDIA_PREFIX + 'tinymce/jscripts/tiny_mce/tiny_mce.js',
+            settings.STATIC_URL + 'academic/js/tiny_mce//tinymce_setup.js',
+            )
+    prepopulated_fields = {
+	'slug': ('title',)
+    }
     list_display_links = [
         'title']
     list_display = [

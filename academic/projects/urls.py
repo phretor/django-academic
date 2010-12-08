@@ -9,7 +9,7 @@ from academic.projects.views import *
 urlpatterns = patterns(
     '',
 
-    url(r'^topics/(?P<object_id>\d+)/$',
+    url(r'^topics/(?P<slug>[-\w]+)/$',
         cache_page(object_detail, settings.CACHE_MIDDLEWARE_SECONDS),
         {'template_name': 'academic/topic_detail.html',
          'queryset': Topic.objects.all() },
@@ -21,15 +21,15 @@ urlpatterns = patterns(
          'queryset': Topic.objects.all() },
         name='academic_projects_topic_list'),
         
+    url(r'^projects/(?P<slug>[-\w]+)/$',
+        cache_page(object_detail, settings.CACHE_MIDDLEWARE_SECONDS),
+        {'template_name': 'academic/project_detail.html',
+         'queryset': Project.objects.all() },
+        name='academic_projects_project_detail'),
+
     url(r'^projects/$',
         cache_page(object_list, settings.CACHE_MIDDLEWARE_SECONDS),
         {'template_name': 'academic/project_list.html',
          'queryset': Project.objects.all() },
         name='academic_projects_project_list'),
-
-    url(r'^projects/(?P<object_id>\d+)/$',
-        cache_page(project_detail, settings.CACHE_MIDDLEWARE_SECONDS),
-        {'template_name': 'academic/project_detail.html',
-         'queryset': Project.objects.all() },
-        name='academic_projects_project_detail'),
 )
