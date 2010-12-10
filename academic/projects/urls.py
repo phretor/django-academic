@@ -4,7 +4,6 @@ from django.views.decorators.cache import cache_page
 from django.views.generic.list_detail import object_list, object_detail
 
 from academic.projects.models import *
-from academic.projects.views import *
 
 urlpatterns = patterns(
     '',
