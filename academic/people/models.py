@@ -45,6 +45,47 @@ class Rank(models.Model):
         return self.name
 
 
+class AlumniManager(models.Manager):
+    '''
+    People who graduated here and left.
+    '''
+    def get_query_set(self):
+        return super(AlumniManager, self).get_query_set().filter(
+            current=False,
+            visitor=False)
+
+
+class VisitorManager(models.Manager):
+    '''
+    People who are visiting.
+    '''
+    def get_query_set(self):
+        return super(VisitorManager, self).get_query_set().filter(
+            current=True,
+            visitor=True)
+
+
+class PastVisitorManager(models.Manager):
+    '''
+    People who visited the lab in the past.
+    '''
+    def get_query_set(self):
+        return super(PastVisitorManager, self).get_query_set().filter(
+            visitor=True,
+            current=False)
+
+
+class PersonManager(models.Manager):
+    '''
+    Genuine people.
+    '''
+    def get_query_set(self):
+        return super(PersonManager, self).get_query_set().filter(
+            current=True,
+            visitor=False,
+            public=True)
+
+
 class Person(models.Model):
     """
     A person in a research lab.
@@ -57,6 +98,13 @@ class Person(models.Model):
             'last_name',
             'first_name', ]
 
+
+    all_objects = models.Manager()
+    objects = PersonManager()
+    visitors = VisitorManager()
+    alumni = AlumniManager()
+    past_visitors = PastVisitorManager()
+    
     affiliation = models.ManyToManyField(
         Organization,
         verbose_name=_('Affiliations'),
@@ -67,6 +115,9 @@ class Person(models.Model):
         verbose_name=_('Public?'),
         help_text=_('Toggle visibility on public pages.'),
         default=True)
+    visitor = models.BooleanField(
+        help_text=_('Is he/she a visitor?'),
+        default=False)
     current = models.BooleanField(
         help_text=_('Is he/she still in the group?'),
         default=True)

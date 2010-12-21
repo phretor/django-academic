@@ -11,7 +11,11 @@ urlpatterns = patterns(
     url(r'^$',
         cache_page(object_list, settings.CACHE_MIDDLEWARE_SECONDS),
         {'template_name': 'academic/person_list.html',
-         'queryset': Person.objects.filter(current=True) },
+         'queryset': Person.objects.all(),
+         'extra_context': {
+                'alumni': Person.alumni.all(),
+                'visitors': Person.visitors.all(),
+                'past_visitors': Person.past_visitors.all()} },
         name='academic_people_person_list'),
 
     url(r'^\#person-(?P<object_id>\d+)$',

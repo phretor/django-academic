@@ -15,11 +15,14 @@ class PersonAdmin(admin.ModelAdmin):
         'has_picture',
         'public',
         'current',
+        'visitor',
         'e_mail',
         'web_page',
         'rank')
     list_filter = (
-        'public',)
+        'public',
+        'current',
+        'visitor',)
     search_fields = (
         'first_name',
         'last_name',
