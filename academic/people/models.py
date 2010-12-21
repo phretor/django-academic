@@ -13,8 +13,8 @@ from django_countries.fields import CountryField
 
 from datetime import date
 
+from academic.settings import *
 from academic.utils import *
-
 from academic.organizations.models import *
 
 class Rank(models.Model):
@@ -51,8 +51,7 @@ class AlumniManager(models.Manager):
     '''
     def get_query_set(self):
         return super(AlumniManager, self).get_query_set().filter(
-            current=False,
-            visitor=False,
+            alumni=True,
             public=True)
 
 
@@ -86,6 +85,7 @@ class PersonManager(models.Manager):
         return super(PersonManager, self).get_query_set().filter(
             current=True,
             visitor=False,
+            alumni=False,
             public=True)
 
 
@@ -102,11 +102,11 @@ class Person(models.Model):
             'first_name', ]
 
 
-    all_objects = models.Manager()
+    objects_all = models.Manager()
+    objects_visitors = VisitorManager()
+    objects_alumni = AlumniManager()
+    objects_past_visitors = PastVisitorManager()
     objects = PersonManager()
-    visitors = VisitorManager()
-    alumni = AlumniManager()
-    past_visitors = PastVisitorManager()
     
     affiliation = models.ManyToManyField(
         Organization,
@@ -116,12 +116,18 @@ class Person(models.Model):
         related_name='people')
     public = models.BooleanField(
         verbose_name=_('Public?'),
-        help_text=_('Toggle visibility on public pages.'),
+        help_text=_('Toggle visibility on main pages.'),
         default=True)
     visitor = models.BooleanField(
+        verbose_name=_('Visitor'),
         help_text=_('Is he/she a visitor?'),
         default=False)
+    alumni = models.BooleanField(
+        verbose_name=_('Alumni'),
+        help_text=_('Did he/she graduate here?'),
+        default=False)
     current = models.BooleanField(
+        verbose_name=_('Current'),
         help_text=_('Is he/she still in the group?'),
         default=True)
     rank = models.ForeignKey(
@@ -157,6 +163,7 @@ class Person(models.Model):
         _('Profile picture'),
         max_length=200,
         format='Image',
+        default=PEOPLE_DEFAULT_PICTURE,
         blank=True,
         null=True)
 

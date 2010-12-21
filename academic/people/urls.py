@@ -13,9 +13,11 @@ urlpatterns = patterns(
         {'template_name': 'academic/person_list.html',
          'queryset': Person.objects.all(),
          'extra_context': {
-                'alumni': Person.alumni.all(),
-                'visitors': Person.visitors.all(),
-                'past_visitors': Person.past_visitors.all()} },
+                'everyone': Person.objects_all.all().order_by(
+                    'last_name').order_by('first_name'),
+                'alumni': Person.objects_alumni.all(),
+                'visitors': Person.objects_visitors.all(),
+                'past_visitors': Person.objects_past_visitors.all()} },
         name='academic_people_person_list'),
 
     url(r'^\#person-(?P<object_id>\d+)$',

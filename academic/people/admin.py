@@ -9,20 +9,31 @@ class PersonAdmin(admin.ModelAdmin):
     filter_horizontal = [
         'affiliation',]
     list_display_links = (
-        'name',)
+        'first_name',
+        'last_name')
     list_display = (
-        'name',
-        'has_picture',
+        'first_name',
+        'last_name',
+        'rank',
         'public',
         'current',
+        'alumni',
         'visitor',
         'e_mail',
-        'web_page',
-        'rank')
+        'web_page',)
+    list_editable = (
+        'rank',
+        'public',
+        'current',
+        'alumni',
+        'visitor',
+        'e_mail',
+        'web_page')
     list_filter = (
         'public',
         'current',
-        'visitor',)
+        'visitor',
+        'alumni')
     search_fields = (
         'first_name',
         'last_name',

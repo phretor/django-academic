@@ -1,17 +1,16 @@
 from django.contrib import admin
 from django import forms
 from django.db import models
-from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from academic.projects.models import *
+from academic.settings import *
 
 class ProjectAdmin(admin.ModelAdmin):
     class Media:
         js = (
-            settings.ADMIN_MEDIA_PREFIX + 'tinymce/jscripts/tiny_mce/tiny_mce.js',
-            settings.STATIC_URL + 'academic/js/tiny_mce//tinymce_setup.js',
-            )
+            TINYMCE_MCE_JS,
+            TINYMCE_SETUP_JS, )
     prepopulated_fields = {
 	'slug': ('short_title',)
     }
