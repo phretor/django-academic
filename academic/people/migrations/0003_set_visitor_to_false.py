@@ -8,7 +8,7 @@ class Migration(DataMigration):
 
     def forwards(self, orm):
         "Write your forwards methods here."
-        for obj.Person.objects.all():
+        for obj in orm.Person.objects.all():
             if obj.visitor is not True or obj.visitor is None:
                 obj.visitor = False
 
