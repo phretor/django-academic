@@ -2,7 +2,9 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.core.validators import RegexValidator
 from django.template.defaultfilters import slugify
+from django_countries.fields import CountryField
 
+from model_utils.models import InheritanceCastModel
 from filebrowser.fields import FileBrowseField
 try:
     from south.modelsinspector import add_introspection_rules
@@ -10,12 +12,10 @@ try:
 except:
     pass
 
-from django_countries.fields import CountryField
-
 from academic.utils import *
-
 from academic.organizations.models import *
 from academic.people.models import *
+
 
 class Conference(models.Model):
     class Meta:
@@ -33,12 +33,16 @@ class Conference(models.Model):
         max_length=16,
         unique=True,
         help_text=_('E.g., RAID, IMC, EC2ND, CCS, SSP'),
-        validators=[RegexValidator(regex=r'^[0-9A-Za-z]+$')])
+        validators=[RegexValidator(regex=r'^([0-9A-Za-z]+[ ]?)+$')])
 
     def __unicode__(self):
-        if self.acronym != '':
-            return self.acronym
         return self.name
+
+    def _get_acronymized(self):
+        return u'%s (%s %s)' % (
+            self.name,
+            self.acronym)
+    acronymized = property(_get_acronymized)
 
 
 class ConferenceEdition(models.Model):
@@ -86,16 +90,24 @@ class ConferenceEdition(models.Model):
     def __unicode__(self):
         return u'%s %s' % (self.conference, self.year)
 
+    def _get_acronymized(self):
+        return u'%s (%s %s)' % (
+            self.conference.name,
+            self.conference.acronym,
+            self.year)
+    acronymized = property(_get_acronymized)
+
     def save(self, **kwargs):
         if len(self.slug) == 0:
             self.slug = slugify('%s %s' % (self.conference.acronym, self.year))
         super(ConferenceEdition, self).save(**kwargs)
 
 
-class Publication(models.Model):
+class Publication(InheritanceCastModel):
     """
     A scientific publication.
     """
+    
     class Meta:
         unique_together = (
             ('title',
@@ -103,7 +115,7 @@ class Publication(models.Model):
         verbose_name = _('Publication')
         verbose_name_plural = _('Publications')
         ordering = ['-year',]
-
+    
     title = models.CharField(
         _('Title'),
         max_length=1024)
@@ -190,13 +202,14 @@ class Publication(models.Model):
             self.title,
             self.year)
 
-    def save(self, **kwargs):
+    def save(self, *args, **kwargs):
         if len(self.slug) == 0:
             self.slug = slugify('%s %s %s' % (
                     self.first_author or '',
                     self.title,
                     self.year))
         super(Publication, self).save(**kwargs)
+
 
 class Authorship(models.Model):
     class Meta:
@@ -236,7 +249,6 @@ class Book(Publication):
         blank=True,
         null=True,
         help_text=_('E.g., First, Second, II, 2, Second edition.'))
-    
 
 
 class Editorship(models.Model):
@@ -248,7 +260,9 @@ class Editorship(models.Model):
 
 
 class Journal(Book):
-    pass
+    def save(self, *args, **kwargs):
+        self.subclass = 'Journal'
+        super(Journal, self).save()
 
 
 class BookChapter(Book):
@@ -261,6 +275,10 @@ class BookChapter(Book):
         help_text=_('E.g., 12-20'),
         validators=[RegexValidator(regex=r'[0-9]+\-[0-9]+')])
 
+    def save(self, *args, **kwargs):
+        self.subclass = 'BookChapter'
+        super(BookChapter, self).save()
+
 
 class JournalArticle(Publication):
     class Meta:
@@ -270,6 +288,7 @@ class JournalArticle(Publication):
     journal = models.ForeignKey(
         Journal)
 
+
 class ConferenceProceedings(Book):
     class Meta:
         verbose_name = _('Proceedings')
@@ -278,7 +297,8 @@ class ConferenceProceedings(Book):
         ConferenceEdition)
 
     def __unicode__(self):
-        return u'%s %s (proceedings)' % (self.title, self.year)
+        return u'%s %s (proceedings)' % (
+            self.title, self.year)
 
 
 class ConferenceArticle(Publication):
@@ -293,6 +313,7 @@ class ConferenceArticle(Publication):
         null=True)
     crossref = models.ForeignKey(
         ConferenceProceedings,
+        verbose_name=_('Conference proceedings'),
         null=True,
         blank=True)
 

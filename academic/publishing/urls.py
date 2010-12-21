@@ -31,7 +31,9 @@ urlpatterns = patterns(
     url(r'^$',
         cache_page(object_list, settings.CACHE_MIDDLEWARE_SECONDS),
         {'template_name': 'academic/publication_list.html',
-         'queryset': ConferenceArticle.objects.all() },
+         'queryset': Publication.objects.exclude(
+                real_type__name='conference proceedings').exclude(
+                real_type__name='journal') },
         name='academic_publishing_publication_list'),
 
 )

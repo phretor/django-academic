@@ -118,8 +118,25 @@ class Person(models.Model):
         return u'%s' % self.name
 
     def _get_name(self):
-        return u'%s %s' % (self.first_name, self.last_name)
+        r = '%s' % self.first_name
+        if self.mid_name:
+            r = '%s %s.' % (r, self.mid_name[0])
+        return '%s %s' % (r, self.last_name)
     name = property(_get_name)
+
+    def _get_fullname(self):
+        r = '%s' % self.first_name
+        if self.mid_name:
+            r = '%s %s' % (r, self.mid_name)
+        return '%s %s' % (r, self.last_name)
+    fullname = property(_get_fullname)
+
+    def _get_sname(self):
+        r = '%s.' % self.first_name[0]
+        if self.mid_name:
+            r = '%s %s.' % (r, self.mid_name[0])
+        return '%s %s' % (r, self.last_name)
+    sname = property(_get_sname)
 
     def _get_slug(self):
         return (u'%s-%s' % (self.first_name[0], self.last_name)).lower()

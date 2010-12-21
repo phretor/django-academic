@@ -69,6 +69,11 @@ class PublicationAdmin(admin.ModelAdmin):
 admin.site.register(TechnicalReport, PublicationAdmin)
 
 class PaperAdmin(PublicationAdmin):
+    class Media:
+        css = {
+            'screen': ('academic/admin/js/inline_author_helper.css',) }
+        js = (
+            'academic/admin/js/inline_author_helper.js', )
     pass
 
 class ConferenceArticleAdmin(PaperAdmin):
