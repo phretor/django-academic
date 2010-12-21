@@ -52,7 +52,8 @@ class AlumniManager(models.Manager):
     def get_query_set(self):
         return super(AlumniManager, self).get_query_set().filter(
             current=False,
-            visitor=False)
+            visitor=False,
+            public=True)
 
 
 class VisitorManager(models.Manager):
@@ -62,7 +63,8 @@ class VisitorManager(models.Manager):
     def get_query_set(self):
         return super(VisitorManager, self).get_query_set().filter(
             current=True,
-            visitor=True)
+            visitor=True,
+            public=True)
 
 
 class PastVisitorManager(models.Manager):
@@ -72,7 +74,8 @@ class PastVisitorManager(models.Manager):
     def get_query_set(self):
         return super(PastVisitorManager, self).get_query_set().filter(
             visitor=True,
-            current=False)
+            current=False,
+            public=True)
 
 
 class PersonManager(models.Manager):
