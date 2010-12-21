@@ -9,8 +9,8 @@ class Migration(DataMigration):
     def forwards(self, orm):
         "Write your forwards methods here."
         for obj in orm.Person.objects.all():
-            if obj.visitor is not True or obj.visitor is None:
-                obj.visitor = False
+            obj.visitor = False
+            obj.save()
 
     def backwards(self, orm):
         "Write your backwards methods here."
