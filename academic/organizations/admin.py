@@ -13,6 +13,11 @@ class OrganizationAdmin(admin.ModelAdmin):
         'name',
         'web_page',
         'country',)
+    list_editables = (
+        'acronym',
+        'name',
+        'web_page',
+        'country',)
     search_fields = (
         'name',
         'country',
