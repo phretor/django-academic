@@ -12,6 +12,7 @@ except:
 from django_countries.fields import CountryField
 
 from academic.utils import *
+from academic.settings import *
 
 class Organization(models.Model):
     name = models.CharField(
@@ -58,6 +59,7 @@ class Sponsor(Organization):
         default=0)
     logo = FileBrowseField(
         _('Logo'),
+	directory=SPONSORS_DEFAULT_DIRECTORY,
         max_length=256,
         format='Image',
         blank=True,

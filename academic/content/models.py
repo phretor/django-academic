@@ -9,6 +9,8 @@ try:
 except:
     pass
 
+from academic.settings import *
+
 class Download(models.Model):
     class Meta:
         ordering = [
@@ -21,6 +23,7 @@ class Download(models.Model):
         null=True)
     file = FileBrowseField(
         _('File'),
+	directory=DOWNLOADS_DEFAULT_DIRECTORY,
         max_length=256,
         format='Document',
         blank=True,

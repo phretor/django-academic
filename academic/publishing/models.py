@@ -12,6 +12,7 @@ try:
 except:
     pass
 
+from academic.settings import *
 from academic.utils import *
 from academic.organizations.models import *
 from academic.people.models import *
@@ -137,6 +138,7 @@ class Publication(InheritanceCastModel):
         null=True)
     attachment = FileBrowseField(
         _('Attachment'),
+	directory=PUBLISHING_DEFAULT_DIRECTORY,
         max_length=256,
         format='File',
         blank=True,
@@ -160,6 +162,7 @@ class Publication(InheritanceCastModel):
         null=True)
     fulltext = FileBrowseField(
         _('Fulltext'),
+	directory=PUBLISHING_DEFAULT_DIRECTORY,
         max_length=256,
         format='Document',
         blank=True,
@@ -307,6 +310,7 @@ class ConferenceArticle(Publication):
         verbose_name = _('Conference paper')
     presentation = FileBrowseField(
         _('Presentation'),
+	directory=PUBLISHING_DEFAULT_DIRECTORY,
         max_length=256,
         format='Document',
         blank=True,
