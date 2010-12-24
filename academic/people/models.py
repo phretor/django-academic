@@ -162,7 +162,7 @@ class Person(models.Model):
     picture = FileBrowseField(
         _('Profile picture'),
         max_length=200,
-	directory=PEOPLE_DEFAULT_DIRECORY,
+	directory=PEOPLE_DEFAULT_DIRECTORY,
         format='Image',
         default=PEOPLE_DEFAULT_PICTURE,
         blank=True,
