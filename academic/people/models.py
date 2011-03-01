@@ -96,6 +96,10 @@ class Person(models.Model):
     class Meta:
         verbose_name = _('Person')
         verbose_name_plural = _('People')
+        unique_together = (
+            'first_name',
+            'mid_name',
+            'last_name')
         ordering = [
             'rank',
             'last_name',
