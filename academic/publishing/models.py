@@ -253,6 +253,21 @@ class Book(Publication):
         null=True,
         help_text=_('E.g., First, Second, II, 2, Second edition.'))
 
+    def _get_editor_list(self):
+        editor_list = ', '.join(map(
+                lambda m:m.person.name , self.editorship_set.all()))
+        return editor_list
+    editor_list = property(_get_editor_list)
+
+    def __unicode__(self):
+        n = u'%s %s' % (self.title, self.year)
+        if self.volume:
+            n += ', vol. %s' % self.volume
+        if self.number:
+            n += ', no. %s' % self.number
+        if self.edition:
+            n += ' (%s)' % self.edition
+        return n
 
 class Editorship(models.Model):
     class Meta:
