@@ -7,5 +7,5 @@ from academic.content.models import *
 
 urlpatterns = patterns(
     '',
-
+    
 )
