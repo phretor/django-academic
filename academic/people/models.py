@@ -101,7 +101,6 @@ class Person(models.Model):
             'mid_name',
             'last_name')
         ordering = [
-            'rank',
             'last_name',
             'first_name', ]
 
