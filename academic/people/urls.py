@@ -9,11 +9,11 @@ urlpatterns = patterns(
     '',
 
     url(r'^$',
-        object_list,
+        cache_page(object_list, settings.CACHE_MIDDLEWARE_SECONDS),
         {'template_name': 'academic/person_list.html',
          'queryset': Person.objects.all(),
          'extra_context': {
-                'everyone': Person.objects_all.filter(public=True).order_by(
+                'everyone': Person.objects_all.all().order_by(
                     'last_name').order_by('first_name'),
                 'alumni': Person.objects_alumni.all(),
                 'visitors': Person.objects_visitors.all(),
