@@ -1,11 +1,5 @@
 from django.conf import settings
 
-try:
-	static_url = settings.STATIC_URL
-except:
-	static_url = settings.MEDIA_URL
-
-
 PEOPLE_DEFAULT_DIRECTORY = getattr(
     settings,
     'ACADEMIC_PEOPLE_DEFAULT_DIRECTORY',

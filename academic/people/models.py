@@ -176,8 +176,23 @@ class Person(models.Model):
     def get_absolute_url(self):
         return ('academic_people_person_detail', (), {'object_id': self.pk})
 
+    def _get_picture_url(self):
+        if self.has_picture:
+            return str(self.picture)
+        return PEOPLE_DEFAULT_PICTURE
+    picture_url = property(_get_picture_url)
+
+    def _get_photo(self):
+        if self.has_picture:
+            return '<img src="%s" alt="%s">' % (self.picture, self.name)
+        return 'No photo.'
+    photo = property(_get_photo)
+    photo.allow_tags = True
+
     def _has_picture(self):
-        return self.picture != ''
+        return isinstance(self.picture.filesize, int) \
+            and self.picture.filesize > 0 \
+            and self.picture.filetype_checked == 'Image'
     has_picture = property(_has_picture)
 
     def __unicode__(self):

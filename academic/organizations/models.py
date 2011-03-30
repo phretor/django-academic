@@ -64,9 +64,15 @@ class Sponsor(Organization):
         format='Image',
         blank=True,
         null=True)
+
+    def _has_logo(self):
+        return isinstance(self.logo.filesize, int) \
+            and self.logo.filesize > 0 \
+            and self.logo.filetype_checked == 'Image'
+    has_logo = property(_has_logo)
     
     def __unicode__(self):
-        return self.name
+        return self.title
 
     def _get_title(self):
         if self.acronym:

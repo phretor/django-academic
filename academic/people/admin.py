@@ -9,9 +9,11 @@ class PersonAdmin(admin.ModelAdmin):
     filter_horizontal = [
         'affiliation',]
     list_display_links = (
+        'photo',
         'first_name',
         'last_name')
     list_display = (
+        'photo',
         'first_name',
         'last_name',
         'rank',
