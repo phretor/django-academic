@@ -66,7 +66,7 @@ class Sponsor(Organization):
         null=True)
 
     def _has_logo(self):
-        return isinstance(self.logo.filesize, int) \
+        return not isinstance(self.logo.filesize, str) \
             and self.logo.filesize > 0 \
             and self.logo.filetype_checked == 'Image'
     has_logo = property(_has_logo)

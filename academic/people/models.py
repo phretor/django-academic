@@ -191,7 +191,7 @@ class Person(models.Model):
     photo.allow_tags = True
 
     def _has_picture(self):
-        return isinstance(self.picture.filesize, int) \
+        return not isinstance(self.picture.filesize, str) \
             and self.picture.filesize > 0 \
             and self.picture.filetype_checked == 'Image'
     has_picture = property(_has_picture)
