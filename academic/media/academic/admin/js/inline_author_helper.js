@@ -36,8 +36,9 @@
                             .prev('div.tbody')
                             .find('.order input').val());
                         
-                        if (previous_value == undefined)
+                        if (!previous_value)
                             previous_value = 0;
+
                         $(this).parent().siblings('.order').children('input').val(previous_value + 1);
                             
 			self._trigger( "selected", event, {
