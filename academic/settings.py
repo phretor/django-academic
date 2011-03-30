@@ -18,7 +18,7 @@ SPONSORS_DEFAULT_DIRECTORY = getattr(
 DOWNLOADS_DEFAULT_DIRECTORY = getattr(
     settings,
     'ACADEMIC_DOWNLOADS_DEFAULT_DIRECTORY',
-    'sponsors')
+    'downloads')
 
 PUBLISHING_DEFAULT_DIRECTORY = getattr(
     settings,
