@@ -182,11 +182,12 @@ class Person(models.Model):
         return PEOPLE_DEFAULT_PICTURE
     picture_url = property(_get_picture_url)
 
-    def _get_photo(self):
+    def photo(self):
         if self.has_picture:
-            return '<img src="%s" alt="%s">' % (self.picture, self.name)
-        return 'No photo.'
-    photo = property(_get_photo)
+            return '<img src="%s" alt="%s">' % (
+                self.picture.url_thumbnail,
+                self.name)
+        return _('(no photo)')
     photo.allow_tags = True
 
     def _has_picture(self):
