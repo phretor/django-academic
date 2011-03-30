@@ -25,7 +25,6 @@ class Download(models.Model):
         _('File'),
 	directory=DOWNLOADS_DEFAULT_DIRECTORY,
         max_length=256,
-        format='Document',
         blank=True,
         null=True)
 
