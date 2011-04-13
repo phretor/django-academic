@@ -33,7 +33,7 @@ admin.site.register(ConferenceEdition, ConferenceEditionAdmin)
 
 class ConferenceEditionInlineForm(forms.ModelForm):
     class Meta:
-        model = Conference
+        model = ConferenceEdition
         fields = (
             'year',
             'month',
