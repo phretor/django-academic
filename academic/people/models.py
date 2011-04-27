@@ -88,7 +88,6 @@ class PersonManager(models.Manager):
             alumni=False,
             public=True)
 
-
 class Person(models.Model):
     """
     A person in a research lab.
