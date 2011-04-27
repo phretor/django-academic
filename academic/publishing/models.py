@@ -98,6 +98,13 @@ class ConferenceEdition(models.Model):
             self.year)
     acronymized = property(_get_acronymized)
 
+    def _get_rev_acronymized(self):
+        return u'%s %s - %s' % (
+            self.conference.acronym,
+            self.year,
+            self.conference.name)
+    rev_acronymized = property(_get_rev_acronymized)
+
     def save(self, **kwargs):
         if len(self.slug) == 0:
             self.slug = slugify('%s %s' % (self.conference.acronym, self.year))
@@ -153,7 +160,8 @@ class Publication(InheritanceCastModel):
         verbose_name=_('BibTeX Entry'),
         help_text=_(
             'At this moment, the BibTeX is not parsed for content.'\
-                'This will override the auto-generated BibTeX.'),
+                'In the future, this will override the (not-yet-)auto-generated'\
+                ' BibTeX.'),
         blank=True,
         null=True)
     abstract = models.TextField(
@@ -278,10 +286,7 @@ class Editorship(models.Model):
 
 
 class Journal(Book):
-    def save(self, *args, **kwargs):
-        self.subclass = 'Journal'
-        super(Journal, self).save()
-
+    pass
 
 class BookChapter(Book):
     chapter = models.CharField(
@@ -292,10 +297,6 @@ class BookChapter(Book):
         max_length=32,
         help_text=_('E.g., 12-20'),
         validators=[RegexValidator(regex=r'[0-9]+\-[0-9]+')])
-
-    def save(self, *args, **kwargs):
-        self.subclass = 'BookChapter'
-        super(BookChapter, self).save()
 
 
 class JournalArticle(Publication):
@@ -315,8 +316,7 @@ class ConferenceProceedings(Book):
         ConferenceEdition)
 
     def __unicode__(self):
-        return u'%s %s (proceedings)' % (
-            self.title, self.year)
+        return u'%s (proceedings)' % self.conference_edition.rev_acronymized
 
 
 class ConferenceArticle(Publication):
