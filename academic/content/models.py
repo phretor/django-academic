@@ -28,5 +28,11 @@ class Download(models.Model):
         blank=True,
         null=True)
 
+    def _is_valid(self):
+        return not isinstance(self.file.filesize, str) \
+            and self.picture.filesize > 0 \
+            and self.picture.filetype_checked == 'Document'
+    is_valid = property(_is_valid)
+
     def __unicode__(self):
         return u'%s%s' % (self.title, self.file)
