@@ -100,6 +100,22 @@ class ConferenceArticleAdmin(PaperAdmin):
         'year',)
 
 class JournalArticleAdmin(PaperAdmin):
+    fieldsets = (
+        (None, {
+                'fields': (
+                    'journal',
+                    'title',
+                    'year',
+                    'month',
+                    'fulltext',
+                    'abstract',
+                    'bibtex')
+                }),
+        (_('Extra information'), {
+                'fields': (
+                    'attachment',
+                    'notes',)}),
+        )
     list_display = (
         'author_list',
         'title',
