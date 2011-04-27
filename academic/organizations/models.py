@@ -35,7 +35,13 @@ class Organization(models.Model):
         validators=[RegexValidator(regex=r'^[A-Za-z]+$')])
 
     def __unicode__(self):
+        return self.title
+
+    def _get_title(self):
+        if self.acronym:
+            return self.acronym
         return self.name
+    title = property(_get_title)
 
 
 class Institution(Organization):
@@ -70,12 +76,3 @@ class Sponsor(Organization):
             and self.logo.filesize > 0 \
             and self.logo.filetype_checked == 'Image'
     has_logo = property(_has_logo)
-    
-    def __unicode__(self):
-        return self.title
-
-    def _get_title(self):
-        if self.acronym:
-            return self.acronym
-        return self.name
-    title = property(_get_title)
