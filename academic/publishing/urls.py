@@ -1,49 +1,36 @@
 from django.conf.urls.defaults import *
 from django.views.decorators.cache import cache_page
-from django.views.generic.list_detail import object_list, object_detail
-from django.core.cache import cache
-from django.db.models import Count
+from django.views.generic.detail import DetailView
+from django.views.generic.list import ListView
+
+from academic.views import PlainTextDetailView
+from academic.views import PlainTextListView
 
 from academic.publishing.models import *
-
-publications = Publication.objects.exclude(
-    real_type__name='conference proceedings').exclude(
-    real_type__name='journal')
-
-publication_stats = cache.get('publication_stats')
-if publication_stats is None:
-    publication_stats = publications.values('year').annotate(papers=Count('year'))
-    cache.set('publication_stats', publication_stats)
+from academic.publishing.views import PublicationListView
 
 urlpatterns = patterns(
     '',
 
     url(r'^v/(?P<slug>[-\w]+)\.bib$',
-        cache_page(object_detail),
-        {'template_name': 'academic/publication_detail.bib',
-         'mimetype': 'text/plain',
-         'queryset': Publication.objects.all() },
+        cache_page(PlainTextDetailView.as_view(
+                model=Publication,
+                template_name='academic/publication_detail.bib')),
         name='academic_publishing_publication_detail_bibtex'),
 
     url(r'^v/(?P<slug>[-\w]+)$',
-        cache_page(object_detail),
-        {'template_name': 'academic/publication_detail.html',
-         'queryset': Publication.objects.all() },
+        cache_page(DetailView.as_view(
+                model=Publication,
+                template_name='academic/publication_detail.html')),
         name='academic_publishing_publication_detail'),
 
     url(r'^bibtex$',
-        cache_page(object_list),
-        {'template_name': 'academic/publication_list.bib',
-         'mimetype': 'text/plain',
-         'queryset': Publication.objects.all() },
+        cache_page(PlainTextListView.as_view(
+                model=Publication,
+                template_name='academic/publication_list.bib')),
         name='academic_publishing_publication_list_bibtex'),
-
+    
     url(r'^$',
-        cache_page(object_list),
-        {'template_name': 'academic/publication_list.html',
-         'queryset': Publication.objects.exclude(
-                real_type__name='conference proceedings').exclude(
-                real_type__name='journal'),
-         'extra_context': { 'publication_stats': publication_stats } },
+        cache_page(PublicationListView.as_view()),
         name='academic_publishing_publication_list'),
     )
