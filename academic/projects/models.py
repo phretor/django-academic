@@ -11,13 +11,12 @@ from academic.publishing.models import *
 class HighlightedTopicManager(models.Manager):
     def get_query_set(self):
         return super(HighlightedTopicManager, self).get_query_set().filter(
-            highlight=True).order_by('title').order_by('highlight_order')
+            highlight=True).order_by('highlight_order')
 
 
 class Topic(models.Model):
     class Meta:
         ordering = [
-            'highlight_order',
             'title']
 
     objects = models.Manager()
