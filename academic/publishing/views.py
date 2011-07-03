@@ -20,7 +20,7 @@ class PublicationListView(ListView):
 
     def get_top_authors(self):
         if self.top_authors is None:
-            top_authors = Person.objects.annotate(
+            self.top_authors = Person.objects.annotate(
                 papers=Count('publications')).filter(
                 papers__gt=0).order_by('-papers')[0:5]
             cache.set('top_authors', self.top_authors)
