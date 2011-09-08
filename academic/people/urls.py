@@ -17,8 +17,8 @@ urlpatterns = patterns(
          'queryset': Person.objects.all(),
          'extra_context': {
                 'alumni': Person.objects_alumni.all(),
-                'visitors': Person.objects_visitors.all(),
-                'past_visitors': Person.objects_past_visitors.all()} },
+                'visitors': Person.objects_visitors.all().order_by('rank'),
+                'past_visitors': Person.objects_past_visitors.all().order_by('rank')} },
         name='academic_people_person_list'),
 
     url(r'^\#person-(?P<object_id>\d+)$',
