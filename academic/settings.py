@@ -32,5 +32,5 @@ TINYMCE_MCE_JS = getattr(
 
 TINYMCE_SETUP_JS = getattr(
     settings,
-    'ACADEMIC_PEOPLE_DEFAULT_PICTURE',
+    'ACADEMIC_TINYMCE_SETUP_JS',
     None)
