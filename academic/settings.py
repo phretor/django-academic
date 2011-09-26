@@ -33,4 +33,4 @@ TINYMCE_MCE_JS = getattr(
 TINYMCE_SETUP_JS = getattr(
     settings,
     'ACADEMIC_TINYMCE_SETUP_JS',
-    settings.STATIC_URL + 'academic/js/tiny_mce//tinymce_setup.js')
+    settings.STATIC_URL + 'academic/js/tiny_mce/tinymce_setup.js')

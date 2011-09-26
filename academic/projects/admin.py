@@ -7,10 +7,6 @@ from academic.projects.models import *
 from academic.settings import *
 
 class ProjectAdmin(admin.ModelAdmin):
-    class Media:
-        js = (
-            TINYMCE_MCE_JS,
-            TINYMCE_SETUP_JS, )
     prepopulated_fields = {
 	'slug': ('short_title',)
     }

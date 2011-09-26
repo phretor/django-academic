@@ -24,7 +24,6 @@ tinyMCE.init({
     // main settings
     mode: "exact",
     elements: "id_description",
-    content_css: "/media/style/tinymce/content.css",
     theme: "advanced",
     language: "en",
     skin: "grappelli",
