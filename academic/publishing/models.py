@@ -122,7 +122,9 @@ class Publication(InheritanceCastModel):
              'year'), )
         verbose_name = _('Publication')
         verbose_name_plural = _('Publications')
-        ordering = ['-year',]
+        ordering = [
+		'-year',
+		'-month']
     
     title = models.CharField(
         _('Title'),

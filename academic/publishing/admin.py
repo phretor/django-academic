@@ -64,7 +64,8 @@ class PublicationAdmin(admin.ModelAdmin):
     list_display = (
         'author_list',
         'title',
-        'year',)
+        'year',
+	'month')
 
 admin.site.register(TechnicalReport, PublicationAdmin)
 
@@ -97,7 +98,8 @@ class ConferenceArticleAdmin(PaperAdmin):
     list_display = (
         'author_list',
         'title',
-        'year',)
+        'year',
+	'month')
 
 class JournalArticleAdmin(PaperAdmin):
     fieldsets = (
