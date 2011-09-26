@@ -28,9 +28,9 @@ PUBLISHING_DEFAULT_DIRECTORY = getattr(
 TINYMCE_MCE_JS = getattr(
     settings,
     'ACADEMIC_TINYMCE_JS',
-    None)
+    settings.ADMIN_MEDIA_PREFIX + 'tinymce/jscripts/tiny_mce/tiny_mce.js')
 
 TINYMCE_SETUP_JS = getattr(
     settings,
     'ACADEMIC_TINYMCE_SETUP_JS',
-    None)
+    settings.STATIC_URL + 'academic/js/tiny_mce//tinymce_setup.js')
