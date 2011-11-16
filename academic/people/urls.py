@@ -8,9 +8,9 @@ from academic.people.models import *
 urlpatterns = patterns(
     '',
 
-    # for some reason, switching to class-based views causes crazy
-    # things with {{ object_list|regroup }}. Thus, let's stick to the
-    # old approach for now.
+    # switching to class-based views causes crazy things with {{
+    # object_list|regroup }}. Thus, let's stick to the old approach for now.
+
     url(r'^$',
         cache_page(object_list),
         {'template_name': 'academic/person_list.html',
