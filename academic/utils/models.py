@@ -1,0 +1,1 @@
+#make django-staticfiles content

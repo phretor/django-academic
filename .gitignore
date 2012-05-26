@@ -1,0 +1,14 @@
+.DS_Store
+*~
+.\#*
+.*.swp
+._*
+*.pyc
+pip-log.txt
+*.egg-info
+**/build/*
+**.pbxuser
+**.mode?v?
+**.perspectivev?
+**.docset/*
+*.svn*
