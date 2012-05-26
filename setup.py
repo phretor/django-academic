@@ -17,10 +17,11 @@ except:
 setup(
     name = 'django-academic',
     version = VERSION,
-    url = 'http://bitbucket.org/phretor/django-academic',
+    url = 'http://github.com/phretor/django-academic',
     author = 'Federico Maggi',
-    author_email = 'federico@maggi.cc',
-    description = 'A collection of models useful to describe an academic context',
+    author_email = 'fede@maggi.cc',
+    description = 'A collection of models useful to describe' \
+        ' an academic context',
     long_description = long_description,
     
     packages = find_packages(),
