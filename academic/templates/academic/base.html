@@ -1,0 +1,88 @@
+{% load flatcontent_tags %}
+{% load compress %}
+
+<!DOCTYPE html>
+
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+	<meta charset="utf-8" />
+
+	<!-- Set the viewport width to device width for mobile -->
+	<meta name="viewport" content="width=device-width" />
+
+    <title>{% block title %}{{ site.name }}{% endblock title %}</title>
+
+    {% block fonts %}
+    <link href="http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Droid+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+    {% endblock fonts %}
+
+    {% compress css %}
+    {% block style %}
+	<!-- Included CSS Files -->
+    <link rel="stylesheet" href="{{STATIC_URL}}lib/foundation/stylesheets/foundation.css">
+	<link rel="stylesheet" href="{{STATIC_URL}}stylesheets/app.css">
+    {% endblock style %}
+    {% endcompress %}
+
+    {% block ie %}
+	<!--[if lt IE 9]>
+		<link rel="stylesheet" href="{{STATIC_URL}}lib/foundation/stylesheets/ie.css">
+	<![endif]-->
+
+	<!-- IE Fix for HTML5 Tags -->
+	<!--[if lt IE 9]>
+		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+    {% endblock ie %}
+
+    {% compress js %}
+    {% block behavior %}
+    {% endblock behavior %}
+    {% endcompress %}
+</head>
+
+<body class="{% block body_class %}{% endblock body_class %}">
+
+	<!-- container -->
+	<div class="container">
+        <header>
+            {% block header %}
+            <nav>
+                {% block nav %}
+                {% endblock nav %}
+            </nav>
+            {% endblock header %}
+        </header>
+
+        <div id="content">
+            {% block content %}
+            {% endblock content %}
+        </div>
+
+        <footer>
+            {% block footer %}
+            {% endblock footer %}
+        </footer>
+	</div>
+	<!-- container -->
+
+    {% compress js %}
+	<script src="{{STATIC_URL}}lib/foundation/javascripts/jquery.min.js"></script>
+	<script src="{{STATIC_URL}}lib/foundation/javascripts/foundation.js"></script>
+    <script src="{{STATIC_URL}}lib/foundation/javascripts/jquery.reveal.js"></script>
+    <script src="{{STATIC_URL}}lib/foundation/javascripts/jquery.orbit-1.4.0.js"></script>
+    <script src="{{STATIC_URL}}lib/foundation/javascripts/jquery.customforms.js"></script>
+    <script src="{{STATIC_URL}}lib/foundation/javascripts/jquery.placeholder.min.js"></script>
+	<script src="{{STATIC_URL}}lib/foundation/javascripts/modernizr.foundation.js"></script>
+    <script src="{{STATIC_URL}}lib/foundation/javascripts/jquery.tooltips.js"></script>
+
+	<script src="{{STATIC_URL}}javascripts/app.js"></script>
+    {% endcompress %}
+
+</body>
+</html>
